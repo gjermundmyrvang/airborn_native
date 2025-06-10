@@ -1,50 +1,36 @@
-import React, { useState, useCallback } from "react";
-import { View, ActivityIndicator } from "react-native";
-import { List, Text, useTheme } from "react-native-paper";
+import React from "react";
+import { ActivityIndicator, View } from "react-native";
+import { List, useTheme } from "react-native-paper";
+import ErrorMessage from "./ErrorMessage";
 
 type LazyCollapsibleProps<T> = {
   title: string;
-  fetchData: () => Promise<T>;
-  renderContent: (data: T) => React.ReactNode;
   icon?: string;
   noDataMsg?: string;
+  loading?: boolean;
+  error?: Error | null;
+  expanded: boolean;
+  onToggle: () => void;
+  renderContent: () => React.ReactNode;
 };
 
 export default function LazyCollapsible<T>({
   title,
-  fetchData,
-  renderContent,
   icon = "chevron-down",
   noDataMsg = "No Data",
+  loading,
+  error,
+  expanded,
+  onToggle,
+  renderContent,
 }: LazyCollapsibleProps<T>) {
-  const [expanded, setExpanded] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState<T | null>(null);
-  const [error, setError] = useState<Error | null>(null);
   const { colors } = useTheme();
-
-  const handlePress = useCallback(async () => {
-    setExpanded((prev) => !prev);
-    if (!expanded && !data && !loading) {
-      setLoading(true);
-      setError(null);
-      try {
-        const result = await fetchData();
-        console.log("Result:", result);
-        setData(result);
-      } catch (e: any) {
-        setError(e);
-      } finally {
-        setLoading(false);
-      }
-    }
-  }, [expanded, data, loading, fetchData]);
 
   return (
     <List.Accordion
       title={title}
       expanded={expanded}
-      onPress={handlePress}
+      onPress={onToggle}
       left={(props) => (
         <List.Icon {...props} icon={icon} color={colors.primary} />
       )}
@@ -64,10 +50,15 @@ export default function LazyCollapsible<T>({
       <View style={{ paddingRight: 8 }}>
         {loading && <ActivityIndicator color={colors.tertiary} />}
         {error && (
-          <List.Item title="Error loading data" description={error.message} />
+          <ErrorMessage
+            title="Error loading data"
+            description={error.message}
+          />
         )}
-        {data && renderContent(data)}
-        {!loading && !error && !data && <List.Item title={noDataMsg} />}
+        {!loading && !error && renderContent()}
+        {!loading && !error && !renderContent() && (
+          <List.Item title={noDataMsg} />
+        )}
       </View>
     </List.Accordion>
   );
