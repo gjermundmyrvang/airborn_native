@@ -2,18 +2,27 @@ import React from "react";
 import { View } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 import LazyCollapsible from "../../components/LazyCollapsible";
+import { useLazyQuery } from "../../hooks/useLazyQuery";
 import { parseMetar } from "../../utils/parseMetar";
 import { getMetarTafData } from "./service";
 import { ParsedMetar } from "./types";
 
 export default function Metar({ icao }: { icao: string }) {
+  const [query, expanded, setExpanded] = useLazyQuery(["metar", icao], () =>
+    getMetarTafData(icao)
+  );
   return (
     <LazyCollapsible
       title="Metar"
-      fetchData={() => getMetarTafData(icao)}
-      renderContent={(metar) => <MetarComponent metar={metar} />}
       icon="weather-cloudy"
       noDataMsg="Selected Airport doesn't have METAR"
+      loading={query.isLoading}
+      error={query.error as Error | null}
+      expanded={expanded}
+      onToggle={() => setExpanded(!expanded)}
+      renderContent={() =>
+        query.data ? <MetarComponent metar={query.data} /> : null
+      }
     />
   );
 }
