@@ -1,3 +1,5 @@
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React, { useState } from "react";
 import { FlatList, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
@@ -15,6 +17,7 @@ import { BottomModal } from "../components/BottomModal";
 import { MyFAB } from "../components/FAB";
 import { LATITUDE, LONGITUDE } from "../constants/constants";
 import { Airport, airports } from "../data/airports";
+import { RootStackParamList } from "../navigation/types";
 
 const airportsData = airports;
 
@@ -32,6 +35,9 @@ export default function Homescreen() {
 
   const { colors } = useTheme();
 
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList, "Home">>();
+
   const filteredAirports = airportsData.filter(
     (a) =>
       a.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -39,8 +45,12 @@ export default function Homescreen() {
   );
 
   const handleGoToBrief = () => {
-    console.log("Departure:", depAirport);
-    if (arrAirport) console.log("Arrival:", arrAirport);
+    if (!depAirport) return;
+    setShowModal(false);
+    navigation.navigate("Flightscreen", {
+      departure: depAirport,
+      arrival: arrAirport ?? null,
+    });
   };
 
   const handleNewTrip = () => {
@@ -49,8 +59,11 @@ export default function Homescreen() {
 
   const switchDepartureArrival = () => {
     const dep = departure;
+    const depAir = depAirport;
     setDeparture(arrival);
+    setDepAirport(arrAirport);
     setArrival(dep);
+    setArrAirport(depAir);
   };
 
   const handleMarkerPressed = (airport: Airport) => {
