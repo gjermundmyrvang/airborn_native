@@ -17,5 +17,7 @@ export const theme = {
     error: '#EF4444',  
     surfaceDisabled: "#1E2A3A",
     onSurfaceDisabled: "#1E2A3A",
+    onError: "#b71c1c",
+    secondaryContainer: "#84C9FB"
   },
 };
