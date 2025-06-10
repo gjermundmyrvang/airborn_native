@@ -5,15 +5,17 @@ export const theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    primary: '#1B263B',     // Blue
+    primary: '#84C9FB',     // Blue
     onPrimary: '#ffffff',
     secondary: '#415A77',   // Bluesecond
     onSecondary: '#ffffff',
-    tertiary: '#F4A261',    // Orange
+    tertiary: '#FB9B50',    // Orange
     background: '#0D1B2A',  // Dark blue
-    onBackground: '#ffffff',
-    surface: '#1E2A3A',     // dark surface
+    onBackground: '#C8DFEA',
+    surface: '#363636',     // dark surface
     onSurface: '#ffffff',
-    error: '#EF4444',      
+    error: '#EF4444',  
+    surfaceDisabled: "#1E2A3A",
+    onSurfaceDisabled: "#1E2A3A",
   },
 };
