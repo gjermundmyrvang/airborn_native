@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
   modal: {
     justifyContent: "flex-end",
     margin: 0,
+    zIndex: 10,
   },
   content: {
     height: height * 0.8,

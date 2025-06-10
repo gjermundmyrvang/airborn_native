@@ -5,13 +5,13 @@ export const theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    primary: '#1B263B',     // Blue
+    primary: '#84C9FB',     // Blue
     onPrimary: '#ffffff',
     secondary: '#415A77',   // Bluesecond
     onSecondary: '#ffffff',
-    tertiary: '#F4A261',    // Orange
+    tertiary: '#FB9B50',    // Orange
     background: '#0D1B2A',  // Dark blue
-    onBackground: '#ffffff',
+    onBackground: '#C8DFEA',
     surface: '#1E2A3A',     // dark surface
     onSurface: '#ffffff',
     error: '#EF4444',      
