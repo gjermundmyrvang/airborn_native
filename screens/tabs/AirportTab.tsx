@@ -3,9 +3,10 @@ import React from "react";
 import { ScrollView, View } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 import { Airport } from "../../data/airports";
-import { FlightscreenTabParamList } from "../../navigation/types";
-import Sunrise from "../../features/sunrise/Sunrise";
 import Metar from "../../features/metartaf/Metar";
+import Sunrise from "../../features/sunrise/Sunrise";
+import Turbulence from "../../features/turbulence/Turbulence";
+import { FlightscreenTabParamList } from "../../navigation/types";
 
 type AirportTabProps = BottomTabScreenProps<FlightscreenTabParamList, any>;
 
@@ -55,6 +56,7 @@ const AirportInfo = ({ airport }: AirportInfoProps) => {
         }}
       />
       <Metar icao={airport.icao} />
+      <Turbulence icao={airport.icao} />
     </ScrollView>
   );
 };
