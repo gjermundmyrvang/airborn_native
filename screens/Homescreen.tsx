@@ -4,13 +4,16 @@ import MapView, { Marker } from "react-native-maps";
 import { LATITUDE, LONGITUDE } from "../constants/constants";
 import { MyFAB } from "../components/FAB";
 import { airports } from "../data/airports";
+import { BottomModal } from "../components/BottomModal";
+import { Text } from "react-native-paper";
 
 const airportsData = airports;
 
 export default function Homescreen() {
   const [fabExtended, setFabExtended] = useState(true);
+  const [showModal, setShowModal] = useState(false);
   const handleNewTrip = () => {
-    console.log("Init new trip");
+    setShowModal(true);
   };
   const handleMove = (moving: boolean) => {
     setTimeout(() => setFabExtended(!moving), 200);
@@ -37,6 +40,9 @@ export default function Homescreen() {
         {airportsData.map((d) => (
           <Marker key={d.icao} title={d.name} coordinate={d}></Marker>
         ))}
+        <BottomModal visible={showModal} onClose={() => setShowModal(false)}>
+          <Text variant="titleLarge">MORN</Text>
+        </BottomModal>
         <MyFAB
           visible={true}
           extended={fabExtended}
