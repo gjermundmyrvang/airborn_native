@@ -1,4 +1,4 @@
-type Airport = {
+export type Airport = {
     name: string;
     icao: string;
     latitude: number;

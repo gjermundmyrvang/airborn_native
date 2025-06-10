@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   content: {
-    height: height * 0.8,
+    height: height * 0.9,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     padding: 16,

@@ -14,6 +14,8 @@ export const theme = {
     onBackground: '#C8DFEA',
     surface: '#1E2A3A',     // dark surface
     onSurface: '#ffffff',
-    error: '#EF4444',      
+    error: '#EF4444',  
+    surfaceDisabled: "#1E2A3A",
+    onSurfaceDisabled: "#1E2A3A"    
   },
 };
