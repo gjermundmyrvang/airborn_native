@@ -12,7 +12,7 @@ export default function Sunrise({ place }: SunriseProps) {
   const { data, isLoading, error } = useSunriseQuery(place);
   const { colors } = useTheme();
   return (
-    <View style={{ alignSelf: "center", marginTop: 10 }}>
+    <View style={{ alignSelf: "center", marginVertical: 10 }}>
       {isLoading && <ActivityIndicator color={colors.tertiary} />}
       {error && <Text variant="titleMedium">Error loading sunrise</Text>}
       {data && (

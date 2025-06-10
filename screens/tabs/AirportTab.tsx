@@ -1,10 +1,11 @@
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import React from "react";
-import { View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 import { Airport } from "../../data/airports";
 import { FlightscreenTabParamList } from "../../navigation/types";
 import Sunrise from "../../features/sunrise/Sunrise";
+import Metar from "../../features/metartaf/Metar";
 
 type AirportTabProps = BottomTabScreenProps<FlightscreenTabParamList, any>;
 
@@ -23,7 +24,7 @@ const AirportInfo = ({ airport }: AirportInfoProps) => {
   const { colors } = useTheme();
   const airportNameParts = airport.name.split(",");
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }}>
+    <ScrollView style={{ flex: 1, backgroundColor: colors.background }}>
       <View style={{ paddingHorizontal: 50, marginHorizontal: 20 }}>
         <Text
           variant="titleMedium"
@@ -53,6 +54,7 @@ const AirportInfo = ({ airport }: AirportInfoProps) => {
           longitude: airport.longitude,
         }}
       />
-    </View>
+      <Metar icao={airport.icao} />
+    </ScrollView>
   );
 };
