@@ -49,8 +49,11 @@ export default function Homescreen() {
 
   const switchDepartureArrival = () => {
     const dep = departure;
+    const depAir = depAirport;
     setDeparture(arrival);
+    setDepAirport(arrAirport);
     setArrival(dep);
+    setArrAirport(depAir);
   };
 
   const handleMarkerPressed = (airport: Airport) => {
