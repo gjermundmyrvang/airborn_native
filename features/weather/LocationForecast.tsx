@@ -387,7 +387,10 @@ const HourCard = ({ isSelected, hour, onPress }: HourCardProps) => {
     hour.data.next_6_hours?.details.precipitation_amount ??
     0;
 
-  const symbol = hour.data.next_1_hours?.summary.symbol_code;
+  const symbol =
+    hour.data.next_1_hours?.summary.symbol_code ??
+    hour.data.next_6_hours?.summary.symbol_code ??
+    hour.data.next_12_hours?.summary.symbol_code;
 
   return (
     <Card
@@ -476,7 +479,7 @@ const WeatherDays = ({
               backgroundColor: "transparent",
               borderColor:
                 day === selectedDay ? colors.primary : colors.outlineVariant,
-              minWidth: 100,
+              minWidth: 130,
               alignItems: "center",
               justifyContent: "center",
               borderWidth: 1,
@@ -499,10 +502,12 @@ const WeatherDays = ({
                   style={{ width: 32, height: 32, marginVertical: 2 }}
                 />
               )}
-              {minTemp !== undefined && (
-                <Text variant="bodyMedium" style={{ color: colors.onSurface }}>
+              {minTemp !== undefined ? (
+                <Text variant="bodySmall">
                   {minTemp}°C / {maxTemp}°C
                 </Text>
+              ) : (
+                <Text variant="bodySmall">NA / NA</Text>
               )}
             </Card.Content>
           </Card>
