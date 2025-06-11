@@ -8,6 +8,7 @@ import {
   Divider,
   IconButton,
   List,
+  Snackbar,
   Surface,
   Text,
   TextInput,
@@ -34,6 +35,11 @@ export default function Homescreen() {
     "departure" | "arrival" | null
   >(null);
   const [search, setSearch] = useState("");
+  const [snackbar, setSnackbar] = useState(false);
+
+  const onToggleSnackBar = () => setSnackbar(!snackbar);
+
+  const onDismissSnackBar = () => setSnackbar(false);
 
   const { colors } = useTheme();
 
@@ -119,7 +125,7 @@ export default function Homescreen() {
           setAirport={setSelectedAirport}
           setDeparture={setDepAirport}
           setArrival={setArrAirport}
-          setShowModal={setShowModal}
+          setSnackbar={onToggleSnackBar}
         />
       )}
       <BottomModal visible={showModal} onClose={() => setShowModal(false)}>
@@ -284,6 +290,27 @@ export default function Homescreen() {
         label="New Trip"
         onPress={handleNewTrip}
       />
+      <Snackbar
+        visible={snackbar}
+        onDismiss={onDismissSnackBar}
+        style={{
+          backgroundColor: colors.background,
+          padding: 10,
+          borderRadius: 16,
+        }}
+        action={{
+          label: `${depAirport ? "Go To Brief" : "Dismiss"}`,
+          onPress: () => {
+            depAirport ? handleGoToBrief() : onDismissSnackBar();
+          },
+        }}
+      >
+        <Text variant="titleSmall">
+          {depAirport
+            ? "Airport selected. Ready for brief?"
+            : "Airport selected"}
+        </Text>
+      </Snackbar>
     </View>
   );
 }
@@ -292,27 +319,27 @@ type AirportHighlightProps = {
   airport: Airport;
   setDeparture: (airport: Airport) => void;
   setArrival: (airport: Airport) => void;
-  setShowModal: (set: boolean) => void;
   setAirport: (airport: Airport | null) => void;
+  setSnackbar: () => void;
 };
 
 const AirportHighlight = ({
   airport,
   setDeparture,
   setArrival,
-  setShowModal,
   setAirport,
+  setSnackbar,
 }: AirportHighlightProps) => {
   const { colors } = useTheme();
   const handleSetDeparture = () => {
     setDeparture(airport);
-    setShowModal(true);
     setAirport(null);
+    setSnackbar();
   };
   const handleSetArrival = () => {
     setArrival(airport);
-    setShowModal(true);
     setAirport(null);
+    setSnackbar();
   };
   return (
     <Surface
@@ -336,6 +363,7 @@ const AirportHighlight = ({
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
+          marginBottom: 6,
         }}
       >
         <Text variant="titleMedium">{airport.name}</Text>
@@ -344,6 +372,7 @@ const AirportHighlight = ({
           size={20}
           onPress={() => setAirport(null)}
           iconColor={colors.onPrimary}
+          mode="outlined"
         />
       </View>
       <View
@@ -362,12 +391,23 @@ const AirportHighlight = ({
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
+          marginTop: 8,
         }}
       >
-        <Button icon="airplane-takeoff" onPress={handleSetDeparture}>
+        <Button
+          icon="airplane-takeoff"
+          onPress={handleSetDeparture}
+          mode="elevated"
+          buttonColor={colors.secondary}
+        >
           Departure
         </Button>
-        <Button icon="airplane-landing" onPress={handleSetArrival}>
+        <Button
+          icon="airplane-landing"
+          onPress={handleSetArrival}
+          mode="elevated"
+          buttonColor={colors.secondary}
+        >
           Arrival
         </Button>
       </View>
