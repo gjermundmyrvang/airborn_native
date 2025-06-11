@@ -6,8 +6,10 @@ import MapView, { Marker } from "react-native-maps";
 import {
   Button,
   Divider,
+  Icon,
   IconButton,
   List,
+  Snackbar,
   Surface,
   Text,
   TextInput,
@@ -18,11 +20,14 @@ import { MyFAB } from "../components/FAB";
 import { LATITUDE, LONGITUDE } from "../constants/constants";
 import { Airport, airports } from "../data/airports";
 import { RootStackParamList } from "../navigation/types";
+import { updateFavorites } from "../data/store";
+import { haversineDistance } from "../utils/geoUtils";
 
 const airportsData = airports;
 
 export default function Homescreen() {
   const [showModal, setShowModal] = useState(false);
+  const [favorites, setFavorites] = useState<string[] | null>(null);
   const [departure, setDeparture] = useState<string | null>(null);
   const [arrival, setArrival] = useState<string | null>(null);
   const [depAirport, setDepAirport] = useState<Airport | null>(null);
@@ -32,17 +37,26 @@ export default function Homescreen() {
     "departure" | "arrival" | null
   >(null);
   const [search, setSearch] = useState("");
+  const [snackbar, setSnackbar] = useState(false);
+
+  const onToggleSnackBar = () => setSnackbar(!snackbar);
+
+  const onDismissSnackBar = () => setSnackbar(false);
 
   const { colors } = useTheme();
 
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList, "Home">>();
 
-  const filteredAirports = airportsData.filter(
-    (a) =>
+  const filteredAirports = airportsData.filter((a) => {
+    if (!search) {
+      return favorites?.includes(a.name);
+    }
+    return (
       a.name.toLowerCase().includes(search.toLowerCase()) ||
       a.icao.toLowerCase().includes(search.toLowerCase())
-  );
+    );
+  });
 
   const handleGoToBrief = () => {
     if (!depAirport) return;
@@ -68,6 +82,17 @@ export default function Homescreen() {
 
   const handleMarkerPressed = (airport: Airport) => {
     setSelectedAirport(airport);
+  };
+
+  const handleToggleFavorite = async (airport: string) => {
+    let updated: string[];
+    if (favorites?.includes(airport)) {
+      updated = favorites.filter((d: string) => d !== airport);
+    } else {
+      updated = favorites ? [...favorites, airport] : [airport];
+    }
+    await updateFavorites(updated);
+    setFavorites(updated);
   };
 
   return (
@@ -96,15 +121,6 @@ export default function Homescreen() {
           />
         ))}
       </MapView>
-      {selectedAirport && (
-        <AirportHighlight
-          airport={selectedAirport}
-          setAirport={setSelectedAirport}
-          setDeparture={setDepAirport}
-          setArrival={setArrAirport}
-          setShowModal={setShowModal}
-        />
-      )}
       <BottomModal visible={showModal} onClose={() => setShowModal(false)}>
         <View
           style={{
@@ -226,6 +242,16 @@ export default function Homescreen() {
                     color={colors.tertiary}
                   />
                 )}
+                right={() => (
+                  <IconButton
+                    icon={
+                      favorites?.includes(item.name) ? "star" : "star-outline"
+                    }
+                    onPress={() => handleToggleFavorite(item.name)}
+                    size={20}
+                    iconColor={colors.tertiary}
+                  />
+                )}
                 onPress={() => {
                   if (activeField === "departure") {
                     setDeparture(item.name);
@@ -257,6 +283,44 @@ export default function Homescreen() {
         label="New Trip"
         onPress={handleNewTrip}
       />
+      <Snackbar
+        visible={snackbar}
+        onDismiss={onDismissSnackBar}
+        style={{
+          backgroundColor: colors.background,
+          padding: 10,
+          borderRadius: 16,
+        }}
+        action={{
+          label: `${depAirport ? "Go To Brief" : "Dismiss"}`,
+          onPress: () => {
+            depAirport ? handleGoToBrief() : onDismissSnackBar();
+          },
+        }}
+      >
+        <Text variant="titleSmall">
+          {depAirport
+            ? "Airport selected. Ready for brief?"
+            : "Airport selected"}
+        </Text>
+      </Snackbar>
+      {selectedAirport ? (
+        <AirportHighlight
+          airport={selectedAirport}
+          setAirport={setSelectedAirport}
+          setDeparture={setDepAirport}
+          setArrival={setArrAirport}
+          setSnackbar={onToggleSnackBar}
+        />
+      ) : null}
+
+      {depAirport && arrAirport ? (
+        <InfoBox
+          departure={depAirport}
+          arrival={arrAirport}
+          offset={!!selectedAirport}
+        />
+      ) : null}
     </View>
   );
 }
@@ -265,27 +329,27 @@ type AirportHighlightProps = {
   airport: Airport;
   setDeparture: (airport: Airport) => void;
   setArrival: (airport: Airport) => void;
-  setShowModal: (set: boolean) => void;
   setAirport: (airport: Airport | null) => void;
+  setSnackbar: () => void;
 };
 
 const AirportHighlight = ({
   airport,
   setDeparture,
   setArrival,
-  setShowModal,
   setAirport,
+  setSnackbar,
 }: AirportHighlightProps) => {
   const { colors } = useTheme();
   const handleSetDeparture = () => {
     setDeparture(airport);
-    setShowModal(true);
     setAirport(null);
+    setSnackbar();
   };
   const handleSetArrival = () => {
     setArrival(airport);
-    setShowModal(true);
     setAirport(null);
+    setSnackbar();
   };
   return (
     <Surface
@@ -296,7 +360,7 @@ const AirportHighlight = ({
         right: "5%",
         alignSelf: "center",
         padding: 16,
-        borderRadius: 16,
+        borderRadius: 12,
         elevation: 4,
         zIndex: 10,
         backgroundColor: colors.surface,
@@ -309,6 +373,7 @@ const AirportHighlight = ({
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
+          marginBottom: 6,
         }}
       >
         <Text variant="titleMedium">{airport.name}</Text>
@@ -317,6 +382,7 @@ const AirportHighlight = ({
           size={20}
           onPress={() => setAirport(null)}
           iconColor={colors.onPrimary}
+          mode="outlined"
         />
       </View>
       <View
@@ -335,15 +401,87 @@ const AirportHighlight = ({
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
+          marginTop: 8,
         }}
       >
-        <Button icon="airplane-takeoff" onPress={handleSetDeparture}>
+        <Button
+          icon="airplane-takeoff"
+          onPress={handleSetDeparture}
+          mode="elevated"
+          buttonColor={colors.secondary}
+        >
           Departure
         </Button>
-        <Button icon="airplane-landing" onPress={handleSetArrival}>
+        <Button
+          icon="airplane-landing"
+          onPress={handleSetArrival}
+          mode="elevated"
+          buttonColor={colors.secondary}
+        >
           Arrival
         </Button>
       </View>
     </Surface>
+  );
+};
+
+type InfoBoxProps = {
+  departure: Airport;
+  arrival: Airport;
+  offset?: boolean;
+};
+
+const InfoBox = ({ departure, arrival, offset = false }: InfoBoxProps) => {
+  const { colors } = useTheme();
+  const distance = haversineDistance(departure, arrival);
+  return (
+    <Surface
+      style={{
+        position: "absolute",
+        top: offset ? 220 : 50,
+        left: "5%",
+        right: "5%",
+        alignSelf: "center",
+        padding: 16,
+        borderRadius: 12,
+        elevation: 4,
+        zIndex: 10,
+        backgroundColor: colors.surface,
+        opacity: 0.9,
+      }}
+      elevation={4}
+    >
+      <RowComp>
+        <RowComp>
+          <Icon source="airplane-takeoff" size={20} color={colors.primary} />
+          <Text variant="titleSmall">{departure.name.split(",")[0]}</Text>
+        </RowComp>
+        <RowComp>
+          <Icon source="airplane-landing" size={20} color={colors.primary} />
+          <Text variant="titleSmall">{arrival.name.split(",")[0]}</Text>
+        </RowComp>
+      </RowComp>
+      <Text variant="titleSmall" style={{ marginTop: 10 }}>
+        Distance between airports: {distance.toString("nm")}
+      </Text>
+    </Surface>
+  );
+};
+
+type RowCompProps = {
+  children: React.ReactNode;
+};
+
+const RowComp = ({ children }: RowCompProps) => {
+  return (
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}
+    >
+      {children}
+    </View>
   );
 };

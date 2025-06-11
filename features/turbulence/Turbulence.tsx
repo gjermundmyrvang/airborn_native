@@ -37,15 +37,6 @@ export default function Turbulence({ icao }: { icao: string }) {
     () => getTurbulenceData(props)
   );
 
-  const isValidIcao = validIcaos.includes(icao);
-  if (!isValidIcao) {
-    return (
-      <ErrorMessage
-        title={`Selected airport (${icao}) does not have turbulence data`}
-      />
-    );
-  }
-
   return (
     <LazyCollapsible
       title="Turbulence Map"
@@ -55,15 +46,22 @@ export default function Turbulence({ icao }: { icao: string }) {
       error={query.error as Error | null}
       expanded={expanded}
       onToggle={() => setExpanded(!expanded)}
-      renderContent={() =>
-        query.data ? (
+      renderContent={() => {
+        if (!validIcaos.includes(icao)) {
+          return (
+            <ErrorMessage
+              title={`Selected airport (${icao}) does not have turbulence data`}
+            />
+          );
+        }
+        return query.data ? (
           <TurbulenceComponent
             uri={query.data}
             type={filter}
             onChangeType={setFilter}
           />
-        ) : null
-      }
+        ) : null;
+      }}
     />
   );
 }
