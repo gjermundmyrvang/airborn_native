@@ -1,11 +1,10 @@
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FlatList, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import {
   Button,
-  Divider,
   Icon,
   IconButton,
   List,
@@ -19,8 +18,8 @@ import { BottomModal } from "../components/BottomModal";
 import { MyFAB } from "../components/FAB";
 import { LATITUDE, LONGITUDE } from "../constants/constants";
 import { Airport, airports } from "../data/airports";
+import { getFavorites, updateFavorites } from "../data/store";
 import { RootStackParamList } from "../navigation/types";
-import { updateFavorites } from "../data/store";
 import { haversineDistance } from "../utils/geoUtils";
 
 const airportsData = airports;
@@ -57,6 +56,14 @@ export default function Homescreen() {
       a.icao.toLowerCase().includes(search.toLowerCase())
     );
   });
+
+  useEffect(() => {
+    const loadFavorites = async () => {
+      const savedFavorites = await getFavorites();
+      setFavorites(savedFavorites);
+    };
+    loadFavorites();
+  }, []);
 
   const handleGoToBrief = () => {
     if (!depAirport) return;
@@ -223,7 +230,6 @@ export default function Homescreen() {
             }}
           />
         </View>
-        {activeField && <Divider style={{ marginVertical: 10 }} />}
         {activeField && (
           <FlatList
             style={{ flex: 1 }}
