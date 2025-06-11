@@ -1,6 +1,6 @@
 import React from "react";
-import { ActivityIndicator, View } from "react-native";
-import { List, useTheme } from "react-native-paper";
+import { ActivityIndicator, View, TouchableOpacity } from "react-native";
+import { Text, useTheme, Icon } from "react-native-paper";
 import ErrorMessage from "./ErrorMessage";
 
 type LazyCollapsibleProps<T> = {
@@ -27,39 +27,49 @@ export default function LazyCollapsible<T>({
   const { colors } = useTheme();
 
   return (
-    <List.Accordion
-      title={title}
-      expanded={expanded}
-      onPress={onToggle}
-      left={(props) => (
-        <List.Icon {...props} icon={icon} color={colors.primary} />
-      )}
-      right={(props) => (
-        <List.Icon
-          {...props}
-          icon={expanded ? "chevron-up" : "chevron-down"}
+    <View
+      style={{
+        marginVertical: 8,
+        overflow: "hidden",
+      }}
+    >
+      <TouchableOpacity
+        onPress={onToggle}
+        activeOpacity={0.7}
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          padding: 14,
+          paddingHorizontal: 18,
+          gap: 6,
+        }}
+        accessibilityLabel={`See information about ${title}`}
+      >
+        {!!icon && <Icon source={icon} size={22} color={colors.primary} />}
+        <Text variant="titleMedium" style={{ color: colors.primary, flex: 1 }}>
+          {title}
+        </Text>
+        <Icon
+          source={expanded ? "chevron-up" : "chevron-down"}
+          size={22}
           color={colors.primary}
         />
+      </TouchableOpacity>
+      {expanded && (
+        <View style={{ paddingBottom: 14 }}>
+          {loading && <ActivityIndicator color={colors.tertiary} />}
+          {error && (
+            <ErrorMessage
+              title="Error loading data"
+              description={error.message}
+            />
+          )}
+          {!loading && !error && renderContent()}
+          {!loading && !error && !renderContent() && (
+            <ErrorMessage title={noDataMsg} />
+          )}
+        </View>
       )}
-      style={{
-        backgroundColor: colors.secondary,
-      }}
-      titleStyle={{ color: colors.primary }}
-      accessibilityLabel={`See information about ${title}`}
-    >
-      <View style={{ paddingRight: 8 }}>
-        {loading && <ActivityIndicator color={colors.tertiary} />}
-        {error && (
-          <ErrorMessage
-            title="Error loading data"
-            description={error.message}
-          />
-        )}
-        {!loading && !error && renderContent()}
-        {!loading && !error && !renderContent() && (
-          <List.Item title={noDataMsg} />
-        )}
-      </View>
-    </List.Accordion>
+    </View>
   );
 }
