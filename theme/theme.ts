@@ -12,7 +12,7 @@ export const theme = {
     tertiary: '#FB9B50',    // Orange
     background: '#0D1B2A',  // Dark blue
     onBackground: '#C8DFEA',
-    surface: '#363636',     // dark surface
+    surface: '#18242B',     // dark surface
     onSurface: '#ffffff',
     error: '#EF4444',  
     surfaceDisabled: "#1E2A3A",
