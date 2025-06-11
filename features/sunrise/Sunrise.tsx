@@ -3,6 +3,7 @@ import { View } from "react-native";
 import { ActivityIndicator, Icon, Text, useTheme } from "react-native-paper";
 import { LatLon } from "../../types/CommonTypes";
 import { useSunriseQuery } from "./useSunriseQuery";
+import { toTime } from "../../utils/dateTimeConverter";
 
 type SunriseProps = {
   place: LatLon;
@@ -35,7 +36,7 @@ export default function Sunrise({ place }: SunriseProps) {
               color={colors.tertiary}
             />
             <Text variant="titleSmall">
-              {toDateTimeString(data.properties.sunrise.time)}
+              {toTime(data.properties.sunrise.time)}
             </Text>
           </View>
           <View
@@ -50,7 +51,7 @@ export default function Sunrise({ place }: SunriseProps) {
               color={colors.tertiary}
             />
             <Text variant="titleSmall">
-              {toDateTimeString(data.properties.sunset.time)} (LT)
+              {toTime(data.properties.sunset.time)} (LT)
             </Text>
           </View>
         </View>
@@ -58,7 +59,3 @@ export default function Sunrise({ place }: SunriseProps) {
     </View>
   );
 }
-
-const toDateTimeString = (date: string) => {
-  return new Date(date).toLocaleTimeString().split(":").slice(0, 2).join(":");
-};
