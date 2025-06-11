@@ -9,7 +9,7 @@ type ErrorMessageProps = {
 
 const ErrorMessage: React.FC<ErrorMessageProps> = ({
   title = "Error",
-  description = "Something went wrong.",
+  description,
 }) => {
   const { colors } = useTheme();
   return (
@@ -33,9 +33,11 @@ const ErrorMessage: React.FC<ErrorMessageProps> = ({
       >
         {title}
       </Text>
-      <Text variant="bodyMedium" style={{ color: colors.onErrorContainer }}>
-        {description}
-      </Text>
+      {description && (
+        <Text variant="bodyMedium" style={{ color: colors.onErrorContainer }}>
+          {description}
+        </Text>
+      )}
     </View>
   );
 };
