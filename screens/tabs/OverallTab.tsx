@@ -2,6 +2,7 @@ import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import React, { useState } from "react";
 import { ScrollView, View } from "react-native";
 import { Button, Icon, Menu, Text, useTheme } from "react-native-paper";
+import Sigchart from "../../features/sigchart/Sigchart";
 import { FlightscreenTabParamList } from "../../navigation/types";
 import { haversineDistance } from "../../utils/geoUtils";
 
@@ -21,6 +22,7 @@ export default function OverallTab({ route }: OverallTabProps) {
       {departure && arrival && (
         <DistanceInfoBox departure={departure} arrival={arrival} />
       )}
+      <Sigchart />
     </ScrollView>
   );
 }
@@ -51,7 +53,14 @@ export function DistanceInfoBox({ departure, arrival }: DistanceInfoBoxProps) {
       displayValue = distance.toString("km");
   }
   return (
-    <View>
+    <View
+      style={{
+        marginHorizontal: 8,
+        padding: 12,
+        backgroundColor: colors.surface,
+        borderRadius: 12,
+      }}
+    >
       <Text
         variant="titleMedium"
         style={{ color: colors.primary, marginBottom: 8 }}
@@ -69,55 +78,52 @@ export function DistanceInfoBox({ departure, arrival }: DistanceInfoBoxProps) {
         <Text variant="bodyLarge" style={{ fontWeight: "bold" }}>
           {arrival.name}
         </Text>
-        <Icon source="arrow-right" size={20} color={colors.primary} />
-        <Menu
-          visible={visible}
-          onDismiss={closeMenu}
-          anchor={
-            <Button
-              onPress={openMenu}
-              style={{ backgroundColor: colors.secondary }}
-            >
-              <Text
-                variant="bodyLarge"
-                style={{
-                  fontWeight: "bold",
-                  color: colors.primary,
-                }}
-              >
-                {displayValue}
-              </Text>
-            </Button>
-          }
-          anchorPosition="bottom"
-          mode="flat"
-          contentStyle={{ backgroundColor: colors.secondary, marginTop: 6 }}
-        >
-          <Menu.Item
-            onPress={() => {
-              setUnit("km");
-              closeMenu();
-            }}
-            title="Kilometers"
-          />
-          <Menu.Item
-            onPress={() => {
-              setUnit("nm");
-              closeMenu();
-            }}
-            title="Nautical Miles"
-            style={{ backgroundColor: colors.secondary }}
-          />
-          <Menu.Item
-            onPress={() => {
-              setUnit("m");
-              closeMenu();
-            }}
-            title="Meters"
-            style={{ backgroundColor: colors.secondary }}
-          />
-        </Menu>
       </View>
+      <Menu
+        visible={visible}
+        onDismiss={closeMenu}
+        anchor={
+          <Button
+            onPress={openMenu}
+            style={{ backgroundColor: colors.secondary, marginTop: 8 }}
+          >
+            <Text
+              variant="bodyLarge"
+              style={{
+                fontWeight: "bold",
+                color: colors.primary,
+              }}
+            >
+              {displayValue}
+            </Text>
+          </Button>
+        }
+        anchorPosition="bottom"
+        mode="flat"
+        contentStyle={{ backgroundColor: colors.secondary, marginTop: 8 }}
+      >
+        <Menu.Item
+          onPress={() => {
+            setUnit("km");
+            closeMenu();
+          }}
+          title="Kilometers"
+        />
+        <Menu.Item
+          onPress={() => {
+            setUnit("nm");
+            closeMenu();
+          }}
+          title="Nautical Miles"
+        />
+        <Menu.Item
+          onPress={() => {
+            setUnit("m");
+            closeMenu();
+          }}
+          title="Meters"
+        />
+      </Menu>
     </View>
   );
 }

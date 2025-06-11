@@ -108,7 +108,10 @@ const AirportInfo = ({ airport }: AirportInfoProps) => {
       <View style={{ paddingHorizontal: 50, marginHorizontal: 20 }}>
         <Text
           variant="titleMedium"
-          style={{ fontWeight: "800", color: colors.primary }}
+          style={{
+            fontWeight: "800",
+            color: colors.primary,
+          }}
         >
           {airport.icao}
         </Text>
@@ -122,7 +125,12 @@ const AirportInfo = ({ airport }: AirportInfoProps) => {
           <Text variant="titleSmall">{airportNameParts.slice(0, 1)}</Text>
           {airportNameParts[1] && (
             <>
-              <Text variant="titleSmall">/</Text>
+              <Text
+                variant="titleSmall"
+                style={{ color: colors.primary, fontWeight: "800" }}
+              >
+                /
+              </Text>
               <Text variant="titleSmall">{airportNameParts[1]}</Text>
             </>
           )}
