@@ -1,7 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
-import { FlatList, View } from "react-native";
+import { FlatList, Image, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import {
   Button,
@@ -114,8 +114,8 @@ export default function Homescreen() {
         initialRegion={{
           latitude: LATITUDE,
           longitude: LONGITUDE,
-          latitudeDelta: 0.09,
-          longitudeDelta: 0.09,
+          latitudeDelta: 20.0,
+          longitudeDelta: 25.0,
         }}
         showsUserLocation
         showsMyLocationButton
@@ -124,6 +124,7 @@ export default function Homescreen() {
           <Marker
             key={d.icao}
             coordinate={d}
+            image={require("../assets/custom_marker.png")}
             onPress={() => handleMarkerPressed(d)}
           />
         ))}

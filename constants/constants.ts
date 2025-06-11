@@ -1,3 +1,3 @@
 // Initial map location
-export const LATITUDE = 55.63163
-export const LONGITUDE = 12.57555
+export const LATITUDE = 64.5
+export const LONGITUDE = 16.5
