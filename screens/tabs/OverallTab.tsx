@@ -1,8 +1,8 @@
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import React, { useState } from "react";
-import { Button, Card, Icon, Menu, Text, useTheme } from "react-native-paper";
-import { FlightscreenTabParamList } from "../../navigation/types";
 import { ScrollView, View } from "react-native";
+import { Button, Icon, Menu, Text, useTheme } from "react-native-paper";
+import { FlightscreenTabParamList } from "../../navigation/types";
 import { haversineDistance } from "../../utils/geoUtils";
 
 type OverallTabProps = BottomTabScreenProps<
@@ -10,7 +10,7 @@ type OverallTabProps = BottomTabScreenProps<
   "Overall"
 >;
 
-export default function OverallTab({ route, navigation }: OverallTabProps) {
+export default function OverallTab({ route }: OverallTabProps) {
   const { departure, arrival } = route.params;
   const { colors } = useTheme();
   return (
