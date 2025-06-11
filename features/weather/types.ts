@@ -1,34 +1,16 @@
-export type WeatherUnits = {
-  air_pressure_at_sea_level: string;
-  air_temperature: string;
-  air_temperature_max: string;
-  air_temperature_min: string;
-  cloud_area_fraction: string;
-  cloud_area_fraction_high: string;
-  cloud_area_fraction_low: string;
-  cloud_area_fraction_medium: string;
-  dew_point_temperature: string;
-  fog_area_fraction: string;
-  precipitation_amount: string;
-  relative_humidity: string;
-  ultraviolet_index_clear_sky: string;
-  wind_from_direction: string;
-  wind_speed: string;
-};
-
 export type WeatherInstantDetails = {
-  air_pressure_at_sea_level: number;
-  air_temperature: number;
-  cloud_area_fraction: number;
-  cloud_area_fraction_high: number;
-  cloud_area_fraction_low: number;
-  cloud_area_fraction_medium: number;
-  dew_point_temperature: number;
-  fog_area_fraction: number;
-  relative_humidity: number;
-  ultraviolet_index_clear_sky: number;
-  wind_from_direction: number;
-  wind_speed: number;
+  air_pressure_at_sea_level?: number;
+  air_temperature?: number;
+  cloud_area_fraction?: number;
+  cloud_area_fraction_high?: number;
+  cloud_area_fraction_low?: number;
+  cloud_area_fraction_medium?: number;
+  dew_point_temperature?: number;
+  fog_area_fraction?: number;
+  relative_humidity?: number;
+  ultraviolet_index_clear_sky?: number;
+  wind_from_direction?: number;
+  wind_speed?: number;
 };
 
 export type WeatherSummary = {
@@ -68,7 +50,4 @@ export type WeatherTimeseriesEntry = {
   };
 };
 
-export type WeatherApiResponse = {
-  units: WeatherUnits;
-  timeseries: WeatherTimeseriesEntry[];
-};
+export type WeatherApiResponse = WeatherTimeseriesEntry[];
