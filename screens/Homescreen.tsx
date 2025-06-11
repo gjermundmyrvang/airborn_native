@@ -18,11 +18,13 @@ import { MyFAB } from "../components/FAB";
 import { LATITUDE, LONGITUDE } from "../constants/constants";
 import { Airport, airports } from "../data/airports";
 import { RootStackParamList } from "../navigation/types";
+import { updateFavorites } from "../data/store";
 
 const airportsData = airports;
 
 export default function Homescreen() {
   const [showModal, setShowModal] = useState(false);
+  const [favorites, setFavorites] = useState<string[] | null>(null);
   const [departure, setDeparture] = useState<string | null>(null);
   const [arrival, setArrival] = useState<string | null>(null);
   const [depAirport, setDepAirport] = useState<Airport | null>(null);
@@ -38,11 +40,15 @@ export default function Homescreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList, "Home">>();
 
-  const filteredAirports = airportsData.filter(
-    (a) =>
+  const filteredAirports = airportsData.filter((a) => {
+    if (!search) {
+      return favorites?.includes(a.name);
+    }
+    return (
       a.name.toLowerCase().includes(search.toLowerCase()) ||
       a.icao.toLowerCase().includes(search.toLowerCase())
-  );
+    );
+  });
 
   const handleGoToBrief = () => {
     if (!depAirport) return;
@@ -68,6 +74,17 @@ export default function Homescreen() {
 
   const handleMarkerPressed = (airport: Airport) => {
     setSelectedAirport(airport);
+  };
+
+  const handleToggleFavorite = async (airport: string) => {
+    let updated: string[];
+    if (favorites?.includes(airport)) {
+      updated = favorites.filter((d: string) => d !== airport);
+    } else {
+      updated = favorites ? [...favorites, airport] : [airport];
+    }
+    await updateFavorites(updated);
+    setFavorites(updated);
   };
 
   return (
@@ -224,6 +241,16 @@ export default function Homescreen() {
                     {...props}
                     icon="airplane"
                     color={colors.tertiary}
+                  />
+                )}
+                right={() => (
+                  <IconButton
+                    icon={
+                      favorites?.includes(item.name) ? "star" : "star-outline"
+                    }
+                    onPress={() => handleToggleFavorite(item.name)}
+                    size={20}
+                    iconColor={colors.tertiary}
                   />
                 )}
                 onPress={() => {
