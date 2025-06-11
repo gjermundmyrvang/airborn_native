@@ -6,6 +6,7 @@ import MapView, { Marker } from "react-native-maps";
 import {
   Button,
   Divider,
+  Icon,
   IconButton,
   List,
   Snackbar,
@@ -20,6 +21,7 @@ import { LATITUDE, LONGITUDE } from "../constants/constants";
 import { Airport, airports } from "../data/airports";
 import { RootStackParamList } from "../navigation/types";
 import { updateFavorites } from "../data/store";
+import { haversineDistance } from "../utils/geoUtils";
 
 const airportsData = airports;
 
@@ -119,15 +121,6 @@ export default function Homescreen() {
           />
         ))}
       </MapView>
-      {selectedAirport && (
-        <AirportHighlight
-          airport={selectedAirport}
-          setAirport={setSelectedAirport}
-          setDeparture={setDepAirport}
-          setArrival={setArrAirport}
-          setSnackbar={onToggleSnackBar}
-        />
-      )}
       <BottomModal visible={showModal} onClose={() => setShowModal(false)}>
         <View
           style={{
@@ -311,6 +304,23 @@ export default function Homescreen() {
             : "Airport selected"}
         </Text>
       </Snackbar>
+      {selectedAirport ? (
+        <AirportHighlight
+          airport={selectedAirport}
+          setAirport={setSelectedAirport}
+          setDeparture={setDepAirport}
+          setArrival={setArrAirport}
+          setSnackbar={onToggleSnackBar}
+        />
+      ) : null}
+
+      {depAirport && arrAirport ? (
+        <InfoBox
+          departure={depAirport}
+          arrival={arrAirport}
+          offset={!!selectedAirport}
+        />
+      ) : null}
     </View>
   );
 }
@@ -350,7 +360,7 @@ const AirportHighlight = ({
         right: "5%",
         alignSelf: "center",
         padding: 16,
-        borderRadius: 16,
+        borderRadius: 12,
         elevation: 4,
         zIndex: 10,
         backgroundColor: colors.surface,
@@ -412,5 +422,66 @@ const AirportHighlight = ({
         </Button>
       </View>
     </Surface>
+  );
+};
+
+type InfoBoxProps = {
+  departure: Airport;
+  arrival: Airport;
+  offset?: boolean;
+};
+
+const InfoBox = ({ departure, arrival, offset = false }: InfoBoxProps) => {
+  const { colors } = useTheme();
+  const distance = haversineDistance(departure, arrival);
+  return (
+    <Surface
+      style={{
+        position: "absolute",
+        top: offset ? 220 : 50,
+        left: "5%",
+        right: "5%",
+        alignSelf: "center",
+        padding: 16,
+        borderRadius: 12,
+        elevation: 4,
+        zIndex: 10,
+        backgroundColor: colors.surface,
+        opacity: 0.9,
+      }}
+      elevation={4}
+    >
+      <RowComp>
+        <RowComp>
+          <Icon source="airplane-takeoff" size={20} color={colors.primary} />
+          <Text variant="titleSmall">{departure.name.split(",")[0]}</Text>
+        </RowComp>
+        <RowComp>
+          <Icon source="airplane-landing" size={20} color={colors.primary} />
+          <Text variant="titleSmall">{arrival.name.split(",")[0]}</Text>
+        </RowComp>
+      </RowComp>
+      <Text variant="titleSmall" style={{ marginTop: 10 }}>
+        Distance between airports: {distance.toString("nm")}
+      </Text>
+    </Surface>
+  );
+};
+
+type RowCompProps = {
+  children: React.ReactNode;
+};
+
+const RowComp = ({ children }: RowCompProps) => {
+  return (
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}
+    >
+      {children}
+    </View>
   );
 };
