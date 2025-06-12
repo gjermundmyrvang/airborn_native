@@ -26,7 +26,7 @@ const airportsData = airports;
 
 export default function Homescreen() {
   const [showModal, setShowModal] = useState(false);
-  const [favorites, setFavorites] = useState<string[] | null>(null);
+  const [favorites, setFavorites] = useState<string[]>([]);
   const [departure, setDeparture] = useState<string | null>(null);
   const [arrival, setArrival] = useState<string | null>(null);
   const [depAirport, setDepAirport] = useState<Airport | null>(null);
@@ -47,15 +47,26 @@ export default function Homescreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList, "Home">>();
 
-  const filteredAirports = airportsData.filter((a) => {
+  const filteredAirports = airports.filter((a) => {
     if (!search) {
-      return favorites?.includes(a.name);
+      return favorites.includes(a.icao);
     }
     return (
       a.name.toLowerCase().includes(search.toLowerCase()) ||
       a.icao.toLowerCase().includes(search.toLowerCase())
     );
   });
+
+  const handleToggleFavorite = async (icao: string) => {
+    let updated: string[];
+    if (favorites.includes(icao)) {
+      updated = favorites.filter((d) => d !== icao);
+    } else {
+      updated = [...favorites, icao];
+    }
+    await updateFavorites(updated);
+    setFavorites(updated);
+  };
 
   useEffect(() => {
     const loadFavorites = async () => {
@@ -89,17 +100,6 @@ export default function Homescreen() {
 
   const handleMarkerPressed = (airport: Airport) => {
     setSelectedAirport(airport);
-  };
-
-  const handleToggleFavorite = async (airport: string) => {
-    let updated: string[];
-    if (favorites?.includes(airport)) {
-      updated = favorites.filter((d: string) => d !== airport);
-    } else {
-      updated = favorites ? [...favorites, airport] : [airport];
-    }
-    await updateFavorites(updated);
-    setFavorites(updated);
   };
 
   return (
@@ -235,6 +235,7 @@ export default function Homescreen() {
           <FlatList
             style={{ flex: 1 }}
             data={filteredAirports}
+            keyboardShouldPersistTaps="handled"
             keyExtractor={(item: Airport) => item.icao}
             renderItem={({ item }: { item: Airport }) => (
               <List.Item
@@ -252,9 +253,9 @@ export default function Homescreen() {
                 right={() => (
                   <IconButton
                     icon={
-                      favorites?.includes(item.name) ? "star" : "star-outline"
+                      favorites?.includes(item.icao) ? "star" : "star-outline"
                     }
-                    onPress={() => handleToggleFavorite(item.name)}
+                    onPress={() => handleToggleFavorite(item.icao)}
                     size={20}
                     iconColor={colors.tertiary}
                   />
@@ -271,7 +272,11 @@ export default function Homescreen() {
                 }}
               />
             )}
-            ListEmptyComponent={<Text>No airports found</Text>}
+            ListEmptyComponent={
+              <Text variant="titleMedium" style={{ marginTop: 8 }}>
+                Begin typing to see airports
+              </Text>
+            }
           />
         )}
         {depAirport && (
