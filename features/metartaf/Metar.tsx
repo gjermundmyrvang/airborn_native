@@ -1,16 +1,34 @@
-import React from "react";
+import React, { useState } from "react";
 import { View } from "react-native";
-import { Text, useTheme } from "react-native-paper";
+import { List, Text, useTheme } from "react-native-paper";
 import LazyCollapsible from "../../components/LazyCollapsible";
 import { useLazyQuery } from "../../hooks/useLazyQuery";
 import { parseMetar } from "../../utils/parseMetar";
-import { getMetarTafData } from "./service";
+import { getMetarTafData, nearbyWithMetar } from "./service";
 import { ParsedMetar } from "./types";
+import { Airport } from "../../data/airports";
+import { DistanceMenu } from "../../components/DistanceInfo";
 
-export default function Metar({ icao }: { icao: string }) {
-  const [query, expanded, setExpanded] = useLazyQuery(["metar", icao], () =>
-    getMetarTafData(icao)
+export default function Metar({
+  icao: initialIcao,
+  airport: initialAirport,
+}: {
+  icao: string;
+  airport: Airport;
+}) {
+  const [selectedIcao, setSelectedIcao] = useState(initialIcao);
+  const [selectedAirport, setSelectedAirport] = useState(initialAirport);
+
+  const [query, expanded, setExpanded] = useLazyQuery(
+    ["metar", selectedIcao],
+    () => getMetarTafData(selectedIcao)
   );
+
+  const handleNearbySelect = (airport: Airport) => {
+    setSelectedIcao(airport.icao);
+    setSelectedAirport(airport);
+  };
+
   return (
     <LazyCollapsible
       title="Metar"
@@ -21,7 +39,14 @@ export default function Metar({ icao }: { icao: string }) {
       expanded={expanded}
       onToggle={() => setExpanded(!expanded)}
       renderContent={() =>
-        query.data ? <MetarComponent metar={query.data} /> : null
+        query.data ? (
+          <MetarComponent metar={query.data} />
+        ) : (
+          <NearbyAirports
+            airport={selectedAirport}
+            onSelect={handleNearbySelect}
+          />
+        )
       }
     />
   );
@@ -59,6 +84,43 @@ const MetarComponent = ({ metar }: MetarComponentProps) => {
       >
         {data.raw}
       </Text>
+    </View>
+  );
+};
+
+type NearbyAirportsProps = {
+  airport: Airport;
+  onSelect: (airport: Airport) => void;
+};
+
+const NearbyAirports = ({ airport, onSelect }: NearbyAirportsProps) => {
+  const max = 10;
+  const nearby = nearbyWithMetar(airport, max);
+  const { colors } = useTheme();
+  if (nearby.length === 0) {
+    return <Text>No airports nearby that has metar</Text>;
+  }
+  return (
+    <View>
+      <Text variant="titleLarge" style={{ marginLeft: 18 }}>
+        Nearby airports with metar:
+      </Text>
+      {nearby.map((d) => (
+        <List.Item
+          key={d.icao}
+          title={d.name}
+          description={d.icao}
+          descriptionStyle={{ color: colors.primary }}
+          style={{
+            backgroundColor: colors.surface,
+            marginTop: 8,
+            marginHorizontal: 8,
+            borderRadius: 16,
+          }}
+          right={() => <DistanceMenu a={airport} b={d} />}
+          onPress={() => onSelect(d)}
+        />
+      ))}
     </View>
   );
 };
