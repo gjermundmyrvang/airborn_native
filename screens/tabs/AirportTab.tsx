@@ -91,7 +91,7 @@ const AirportInfo = ({ airport }: AirportInfoProps) => {
           longitude: airport.longitude,
         }}
       />
-      <Metar icao={airport.icao} />
+      <Metar icao={airport.icao} airport={airport} />
       <Turbulence icao={airport.icao} />
       <LocationForecast
         pos={{
