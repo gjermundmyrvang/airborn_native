@@ -16,6 +16,7 @@ import LocationForecast from "../../features/weather/LocationForecast";
 import { FlightscreenTabParamList } from "../../navigation/types";
 import { getFavorites, updateFavorites } from "../../data/store";
 import { useFlightStore } from "../../utils/flightStore";
+import Webcams from "../../features/webcams/Webcams";
 
 type AirportTabProps = BottomTabScreenProps<
   FlightscreenTabParamList,
@@ -93,6 +94,12 @@ const AirportInfo = ({ airport }: AirportInfoProps) => {
       <Metar icao={airport.icao} />
       <Turbulence icao={airport.icao} />
       <LocationForecast
+        pos={{
+          latitude: airport.latitude,
+          longitude: airport.longitude,
+        }}
+      />
+      <Webcams
         pos={{
           latitude: airport.latitude,
           longitude: airport.longitude,
