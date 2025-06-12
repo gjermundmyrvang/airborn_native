@@ -37,9 +37,11 @@ const validIcaos = [
 ];
 
 export default function Turbulence({ icao }: { icao: string }) {
+  const isValidIcao = validIcaos.includes(icao);
+
   const [query, expanded, setExpanded] = useLazyQuery(
     ["turbulence", icao],
-    () => getTurbulenceData(icao)
+    isValidIcao ? () => getTurbulenceData(icao) : async () => null // if invalid ICAO
   );
 
   return (
@@ -52,7 +54,7 @@ export default function Turbulence({ icao }: { icao: string }) {
       expanded={expanded}
       onToggle={() => setExpanded(!expanded)}
       renderContent={() => {
-        if (!validIcaos.includes(icao)) {
+        if (!isValidIcao) {
           return (
             <ErrorMessage
               title={`Selected airport (${icao}) does not have turbulence data`}
