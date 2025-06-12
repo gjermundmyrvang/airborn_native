@@ -21,6 +21,7 @@ import { Airport, airports } from "../data/airports";
 import { getFavorites, updateFavorites } from "../data/store";
 import { RootStackParamList } from "../navigation/types";
 import { haversineDistance } from "../utils/geoUtils";
+import { useFlightStore } from "../utils/flightStore";
 
 const airportsData = airports;
 
@@ -29,8 +30,10 @@ export default function Homescreen() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [departure, setDeparture] = useState<string | null>(null);
   const [arrival, setArrival] = useState<string | null>(null);
-  const [depAirport, setDepAirport] = useState<Airport | null>(null);
-  const [arrAirport, setArrAirport] = useState<Airport | null>(null);
+  const setDepAirport = useFlightStore((s) => s.setDepAirport);
+  const setArrAirport = useFlightStore((s) => s.setArrAirport);
+  const depAirport = useFlightStore((s) => s.depAirport);
+  const arrAirport = useFlightStore((s) => s.arrAirport);
   const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
   const [activeField, setActiveField] = useState<
     "departure" | "arrival" | null
@@ -45,7 +48,7 @@ export default function Homescreen() {
   const { colors } = useTheme();
 
   const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList, "Home">>();
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const filteredAirports = airports.filter((a) => {
     if (!search) {
@@ -79,10 +82,7 @@ export default function Homescreen() {
   const handleGoToBrief = () => {
     if (!depAirport) return;
     setShowModal(false);
-    navigation.navigate("Flightscreen", {
-      departure: depAirport,
-      arrival: arrAirport ?? null,
-    });
+    navigation.navigate("Flightscreen");
   };
 
   const handleNewTrip = () => {

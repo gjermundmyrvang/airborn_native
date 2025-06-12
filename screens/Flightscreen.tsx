@@ -1,28 +1,16 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { CommonActions } from "@react-navigation/native";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { CommonActions, useNavigation } from "@react-navigation/native";
 import React from "react";
 import { View } from "react-native";
 import { Appbar, BottomNavigation, useTheme } from "react-native-paper";
-import { Airport } from "../data/airports";
-import {
-  FlightscreenTabParamList,
-  RootStackParamList,
-} from "../navigation/types";
+import { FlightscreenTabParamList } from "../navigation/types";
 import AirportTab from "./tabs/AirportTab";
 import OverallTab from "./tabs/OverallTab";
 
-type Props = NativeStackScreenProps<RootStackParamList, "Flightscreen">;
-
-type BottomBarProps = {
-  departure: Airport;
-  arrival?: Airport | null;
-};
-
-export default function Flightscreen({ route, navigation }: Props) {
-  const { departure, arrival } = route.params;
+export default function Flightscreen() {
   const { colors } = useTheme();
+  const navigation = useNavigation();
 
   const _goBack = () => navigation.goBack();
   const _handleRefresh = () => console.log("Refreshing");
@@ -41,7 +29,7 @@ export default function Flightscreen({ route, navigation }: Props) {
         />
       </Appbar.Header>
       <View style={{ flex: 1 }}>
-        <BottomBar departure={departure} arrival={arrival} />
+        <BottomBar />
       </View>
     </View>
   );
@@ -49,7 +37,7 @@ export default function Flightscreen({ route, navigation }: Props) {
 
 const Tab = createBottomTabNavigator<FlightscreenTabParamList>();
 
-const BottomBar = ({ departure, arrival }: BottomBarProps) => {
+const BottomBar = () => {
   const { colors } = useTheme();
 
   return (
@@ -103,9 +91,8 @@ const BottomBar = ({ departure, arrival }: BottomBarProps) => {
       )}
     >
       <Tab.Screen
-        name="Departure"
+        name="DepartureTab"
         component={AirportTab}
-        initialParams={{ departure }}
         options={{
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons
@@ -117,9 +104,8 @@ const BottomBar = ({ departure, arrival }: BottomBarProps) => {
         }}
       />
       <Tab.Screen
-        name="Arrival"
+        name="ArrivalTab"
         component={AirportTab}
-        initialParams={{ arrival }}
         options={{
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons
@@ -133,7 +119,6 @@ const BottomBar = ({ departure, arrival }: BottomBarProps) => {
       <Tab.Screen
         name="Overall"
         component={OverallTab}
-        initialParams={{ departure, arrival }}
         options={{
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons
