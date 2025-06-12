@@ -12,4 +12,8 @@ export type FlightscreenTabParamList = {
   Departure: { departure: Airport };
   Arrival: { arrival?: Airport | null };
   Overall: { departure: Airport; arrival?: Airport | null };
+  AirportTab: {
+    departure?: Airport | null;
+    arrival?: Airport | null;
+  };
 };
