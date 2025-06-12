@@ -81,6 +81,17 @@ const TurbulenceComponent = ({ turbulence }: ComponentProps) => {
   const { colors } = useTheme();
 
   const maps = turbulence.filter((d) => d.params.type === type);
+
+  if (!maps.length) {
+    return (
+      <View style={{ padding: 16 }}>
+        <Text variant="bodyLarge" style={{ color: colors.error }}>
+          No turbulence charts available for this type.
+        </Text>
+      </View>
+    );
+  }
+
   const displayedChart: TurbulenceEntry = maps[selected];
 
   const openMenu = () => setVisible(true);
@@ -94,7 +105,10 @@ const TurbulenceComponent = ({ turbulence }: ComponentProps) => {
     >
       <SegmentedButtons
         value={type}
-        onValueChange={setType}
+        onValueChange={(val) => {
+          setType(val);
+          setSelected(0);
+        }}
         buttons={[
           { value: "map", label: "Map" },
           { value: "cross_section", label: "Cross Section" },
