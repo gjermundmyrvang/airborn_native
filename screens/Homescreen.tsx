@@ -1,7 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
-import { FlatList, Image, View } from "react-native";
+import { FlatList, Image, Keyboard, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import {
   Button,
@@ -261,6 +261,7 @@ export default function Homescreen() {
                   />
                 )}
                 onPress={() => {
+                  Keyboard.dismiss();
                   if (activeField === "departure") {
                     setDeparture(item.name);
                     setDepAirport(item);

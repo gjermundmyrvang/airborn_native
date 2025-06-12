@@ -1,6 +1,6 @@
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import React, { useEffect, useState } from "react";
-import { FlatList, ScrollView, View } from "react-native";
+import { FlatList, Keyboard, ScrollView, View } from "react-native";
 import {
   IconButton,
   List,
@@ -187,6 +187,7 @@ const NoArrivalComponent = ({ setArrAirport }: ArrivalProps) => {
                 />
               )}
               onPress={() => {
+                Keyboard.dismiss();
                 setArrAirport(item);
                 setActiveField(false);
               }}
