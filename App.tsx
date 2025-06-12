@@ -16,10 +16,10 @@ export default function App() {
       <PaperProvider theme={theme}>
         <NavigationContainer>
           <Stack.Navigator
-            initialRouteName="Home"
+            initialRouteName={"Homescreen" as keyof RootStackParamList}
             screenOptions={{ headerShown: false }}
           >
-            <Stack.Screen name="Home" component={Homescreen} />
+            <Stack.Screen name="Homescreen" component={Homescreen} />
             <Stack.Screen name="Flightscreen">
               {(props) => <Flightscreen {...props} />}
             </Stack.Screen>

@@ -1,16 +1,24 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { CommonActions, useNavigation } from "@react-navigation/native";
+import { CommonActions } from "@react-navigation/native";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React from "react";
 import { View } from "react-native";
 import { Appbar, BottomNavigation, useTheme } from "react-native-paper";
-import { FlightscreenTabParamList } from "../navigation/types";
+import {
+  FlightscreenTabParamList,
+  RootStackParamList,
+} from "../navigation/types";
 import AirportTab from "./tabs/AirportTab";
 import OverallTab from "./tabs/OverallTab";
 
-export default function Flightscreen() {
+type FlightscreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  "Flightscreen"
+>;
+
+export default function Flightscreen({ navigation, route }: FlightscreenProps) {
   const { colors } = useTheme();
-  const navigation = useNavigation();
 
   const _goBack = () => navigation.goBack();
   const _handleRefresh = () => console.log("Refreshing");
