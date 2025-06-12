@@ -1,98 +1,33 @@
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
-import React from "react";
-import { ScrollView, View } from "react-native";
-import { Text, useTheme } from "react-native-paper";
-import { Airport } from "../../data/airports";
+import React, { useEffect, useState } from "react";
+import { FlatList, ScrollView, View } from "react-native";
+import {
+  IconButton,
+  List,
+  Text,
+  TextInput,
+  useTheme,
+} from "react-native-paper";
+import { Airport, airports } from "../../data/airports";
 import Metar from "../../features/metartaf/Metar";
 import Sunrise from "../../features/sunrise/Sunrise";
 import Turbulence from "../../features/turbulence/Turbulence";
 import LocationForecast from "../../features/weather/LocationForecast";
 import { FlightscreenTabParamList } from "../../navigation/types";
+import { getFavorites, updateFavorites } from "../../data/store";
 
-// Example dummy WeatherApiResponse for testing
-const dummyWeatherApiResponse = [
-  {
-    time: "2025-06-11T11:00:00Z",
-    data: {
-      instant: {
-        details: {
-          air_pressure_at_sea_level: 1022.7,
-          air_temperature: 18.5,
-          cloud_area_fraction: 75,
-          cloud_area_fraction_high: 20,
-          cloud_area_fraction_low: 30,
-          cloud_area_fraction_medium: 25,
-          dew_point_temperature: 12.3,
-          fog_area_fraction: 0,
-          relative_humidity: 64.1,
-          ultraviolet_index_clear_sky: 5,
-          wind_from_direction: 180,
-          wind_speed: 3.2,
-        },
-      },
-      next_1_hours: {
-        summary: { symbol_code: "rainshowers_day" },
-        details: { precipitation_amount: 10 },
-      },
-      next_6_hours: {
-        summary: { symbol_code: "rainshowers_day" },
-        details: {
-          air_temperature_max: 21.0,
-          air_temperature_min: 15.0,
-          precipitation_amount: 1.2,
-        },
-      },
-      next_12_hours: {
-        summary: { symbol_code: "clearsky_day" },
-        details: {},
-      },
-    },
-  },
-  {
-    time: "2025-06-12T12:00:00Z",
-    data: {
-      instant: {
-        details: {
-          air_pressure_at_sea_level: 1022.7,
-          air_temperature: 15.5,
-          cloud_area_fraction: 75,
-          cloud_area_fraction_high: 20,
-          cloud_area_fraction_low: 30,
-          cloud_area_fraction_medium: 20,
-          dew_point_temperature: 15.3,
-          fog_area_fraction: 0,
-          relative_humidity: 74.1,
-          ultraviolet_index_clear_sky: 4,
-          wind_from_direction: 180,
-          wind_speed: 6.2,
-        },
-      },
-      next_1_hours: {
-        summary: { symbol_code: "clearsky_day" },
-        details: { precipitation_amount: 0 },
-      },
-      next_6_hours: {
-        summary: { symbol_code: "clearsky_day" },
-        details: {
-          air_temperature_max: 26.0,
-          air_temperature_min: 12.0,
-          precipitation_amount: 5.2,
-        },
-      },
-      next_12_hours: {
-        summary: { symbol_code: "clearsky_day" },
-        details: {},
-      },
-    },
-  },
-];
-
-type AirportTabProps = BottomTabScreenProps<FlightscreenTabParamList, any>;
+type AirportTabProps = BottomTabScreenProps<
+  FlightscreenTabParamList,
+  "AirportTab"
+>;
 
 export default function AirportTab({ route }: AirportTabProps) {
-  const airport =
-    (route.params as any).departure ?? (route.params as any).arrival;
-  if (!airport) return <Text>No airport selected.</Text>;
+  const { departure, arrival } = route.params;
+  const [airport, setAirport] = useState<Airport | null>(
+    departure ?? arrival ?? null
+  );
+
+  if (!airport) return <NoArrivalComponent setArrAirport={setAirport} />;
   return <AirportInfo airport={airport} />;
 }
 
@@ -122,7 +57,7 @@ const AirportInfo = ({ airport }: AirportInfoProps) => {
             justifyContent: "space-between",
           }}
         >
-          <Text variant="titleSmall">{airportNameParts.slice(0, 1)}</Text>
+          <Text variant="titleSmall">{airportNameParts[0]}</Text>
           {airportNameParts[1] && (
             <>
               <Text
@@ -151,5 +86,115 @@ const AirportInfo = ({ airport }: AirportInfoProps) => {
         }}
       />
     </ScrollView>
+  );
+};
+
+type ArrivalProps = {
+  setArrAirport: (arrival: Airport) => void;
+};
+
+const NoArrivalComponent = ({ setArrAirport }: ArrivalProps) => {
+  const [search, setSearch] = useState("");
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [activeField, setActiveField] = useState(false);
+
+  const { colors } = useTheme();
+
+  useEffect(() => {
+    const loadFavorites = async () => {
+      const savedFavorites = await getFavorites();
+      setFavorites(savedFavorites ?? []);
+    };
+    loadFavorites();
+  }, []);
+
+  const filteredAirports = airports.filter((a) => {
+    if (!search) {
+      return favorites.includes(a.icao);
+    }
+    return (
+      a.name.toLowerCase().includes(search.toLowerCase()) ||
+      a.icao.toLowerCase().includes(search.toLowerCase())
+    );
+  });
+
+  const handleToggleFavorite = async (icao: string) => {
+    let updated: string[];
+    if (favorites.includes(icao)) {
+      updated = favorites.filter((d) => d !== icao);
+    } else {
+      updated = [...favorites, icao];
+    }
+    await updateFavorites(updated);
+    setFavorites(updated);
+  };
+
+  return (
+    <View style={{ flex: 1, backgroundColor: colors.background, padding: 8 }}>
+      <TextInput
+        label="Arrival airport"
+        value={search}
+        onFocus={() => {
+          setSearch("");
+          setActiveField(true);
+        }}
+        onChangeText={setSearch}
+        mode="outlined"
+        outlineColor={colors.onBackground}
+        activeOutlineColor={colors.primary}
+        textColor={colors.onBackground}
+        style={{ marginTop: 10 }}
+        left={
+          <TextInput.Icon
+            icon="airplane-landing"
+            size={20}
+            color={colors.tertiary}
+          />
+        }
+        right={
+          <TextInput.Icon
+            icon="close"
+            size={20}
+            color={colors.onBackground}
+            onPress={() => {
+              setSearch("");
+              setActiveField(false);
+            }}
+          />
+        }
+      />
+      {activeField && (
+        <FlatList
+          style={{ flex: 1 }}
+          data={filteredAirports}
+          keyboardShouldPersistTaps="handled"
+          keyExtractor={(item: Airport) => item.icao}
+          renderItem={({ item }: { item: Airport }) => (
+            <List.Item
+              title={item.icao}
+              titleStyle={{ color: colors.primary }}
+              description={item.name}
+              descriptionStyle={{ color: colors.onBackground }}
+              left={(props) => (
+                <List.Icon {...props} icon="airplane" color={colors.tertiary} />
+              )}
+              right={() => (
+                <IconButton
+                  icon={favorites.includes(item.icao) ? "star" : "star-outline"}
+                  onPress={() => handleToggleFavorite(item.icao)}
+                  size={20}
+                  iconColor={colors.tertiary}
+                />
+              )}
+              onPress={() => {
+                setArrAirport(item);
+                setActiveField(false);
+              }}
+            />
+          )}
+          ListEmptyComponent={<Text>No airports found</Text>}
+        />
+      )}
+    </View>
   );
 };
