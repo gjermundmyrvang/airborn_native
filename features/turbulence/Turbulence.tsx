@@ -1,10 +1,18 @@
-import React from "react";
-import { Dimensions, Image, View } from "react-native";
-import { SegmentedButtons, useTheme } from "react-native-paper";
+import React, { useState } from "react";
+import { Dimensions, Image, ScrollView, View } from "react-native";
+import {
+  Button,
+  Menu,
+  SegmentedButtons,
+  Text,
+  useTheme,
+} from "react-native-paper";
 import ErrorMessage from "../../components/ErrorMessage";
 import LazyCollapsible from "../../components/LazyCollapsible";
 import { useLazyQuery } from "../../hooks/useLazyQuery";
 import { getTurbulenceData } from "./turbulenceservice";
+import { TurbulenceEntry, TurbulenceResponse } from "./types";
+import { toDateTime } from "../../utils/dateTimeConverter";
 
 const validIcaos = [
   "ENAL",
@@ -29,12 +37,9 @@ const validIcaos = [
 ];
 
 export default function Turbulence({ icao }: { icao: string }) {
-  const [filter, setFilter] = React.useState("map");
-  const props = { icao, type: filter };
-
   const [query, expanded, setExpanded] = useLazyQuery(
-    ["turbulence", icao, filter],
-    () => getTurbulenceData(props)
+    ["turbulence", icao],
+    () => getTurbulenceData(icao)
   );
 
   return (
@@ -55,11 +60,7 @@ export default function Turbulence({ icao }: { icao: string }) {
           );
         }
         return query.data ? (
-          <TurbulenceComponent
-            uri={query.data}
-            type={filter}
-            onChangeType={setFilter}
-          />
+          <TurbulenceComponent turbulence={query.data} />
         ) : null;
       }}
     />
@@ -67,25 +68,92 @@ export default function Turbulence({ icao }: { icao: string }) {
 }
 
 type ComponentProps = {
-  uri: string;
-  type: string;
-  onChangeType: (type: string) => void;
+  turbulence: TurbulenceResponse;
 };
-const TurbulenceComponent = ({ uri, type, onChangeType }: ComponentProps) => {
-  const width = Dimensions.get("window").width - 50;
-  const height = Dimensions.get("window").height * 0.4;
+
+const TurbulenceComponent = ({ turbulence }: ComponentProps) => {
+  const [type, setType] = useState<"map" | "cross_section">("map");
+  const [selected, setSelected] = useState(0);
+  const [visible, setVisible] = useState(false);
+
   const { colors } = useTheme();
+
+  const maps = turbulence.filter((d) => d.params.type === type);
+  const displayedChart: TurbulenceEntry = maps[selected];
+
+  const openMenu = () => setVisible(true);
+  const closeMenu = () => setVisible(false);
+
+  const width = Dimensions.get("screen").width - 50;
+  const height = Dimensions.get("screen").height * 0.4;
   return (
-    <View style={{ paddingTop: 8, paddingRight: 8 }}>
+    <View
+      style={{ padding: 8, justifyContent: "center", alignItems: "center" }}
+    >
       <SegmentedButtons
         value={type}
-        onValueChange={onChangeType}
+        onValueChange={setType}
         buttons={[
           { value: "map", label: "Map" },
           { value: "cross_section", label: "Cross Section" },
         ]}
+        density="small"
+        style={{ width: "80%" }}
       />
-      <Image source={{ uri }} style={{ width, height }} resizeMode="contain" />
+      <Image
+        source={{ uri: displayedChart.uri }}
+        style={{ width, height }}
+        resizeMode="contain"
+      />
+      <Menu
+        visible={visible}
+        onDismiss={closeMenu}
+        anchor={
+          <Button
+            onPress={openMenu}
+            style={{
+              backgroundColor: colors.secondary,
+              marginTop: 8,
+            }}
+          >
+            <Text
+              variant="bodyLarge"
+              style={{
+                fontWeight: "bold",
+                color: colors.primary,
+              }}
+            >
+              {toDateTime(displayedChart.params.time)} LT
+            </Text>
+          </Button>
+        }
+        anchorPosition="top"
+        mode="flat"
+        contentStyle={{
+          backgroundColor: colors.surface,
+          marginTop: 6,
+          borderRadius: 8,
+        }}
+      >
+        <ScrollView style={{ maxHeight: 300 }}>
+          {maps.map((d, i) => (
+            <Menu.Item
+              key={d.params.time}
+              onPress={() => {
+                setSelected(i);
+                closeMenu();
+              }}
+              title={toDateTime(d.params.time)}
+              style={{
+                backgroundColor:
+                  i === selected ? colors.secondary : colors.surface,
+                marginHorizontal: i === selected ? 6 : 0,
+                borderRadius: 8,
+              }}
+            />
+          ))}
+        </ScrollView>
+      </Menu>
     </View>
   );
 };
