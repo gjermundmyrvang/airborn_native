@@ -15,20 +15,33 @@ import Turbulence from "../../features/turbulence/Turbulence";
 import LocationForecast from "../../features/weather/LocationForecast";
 import { FlightscreenTabParamList } from "../../navigation/types";
 import { getFavorites, updateFavorites } from "../../data/store";
+import { useFlightStore } from "../../utils/flightStore";
 
 type AirportTabProps = BottomTabScreenProps<
   FlightscreenTabParamList,
-  "AirportTab"
+  "DepartureTab" | "ArrivalTab"
 >;
 
 export default function AirportTab({ route }: AirportTabProps) {
-  const { departure, arrival } = route.params;
-  const [airport, setAirport] = useState<Airport | null>(
-    departure ?? arrival ?? null
-  );
+  const isDeparture = route.name === "DepartureTab";
+  const isArrival = route.name === "ArrivalTab";
 
-  if (!airport) return <NoArrivalComponent setArrAirport={setAirport} />;
-  return <AirportInfo airport={airport} />;
+  const departure = useFlightStore((s) => s.depAirport);
+  const arrival = useFlightStore((s) => s.arrAirport);
+  const setArrival = useFlightStore((s) => s.setArrAirport);
+
+  if (isDeparture) {
+    return <AirportInfo airport={departure!} />;
+  }
+
+  if (isArrival) {
+    if (!arrival) {
+      return <NoAirportComponent onSelectAirport={setArrival} />;
+    }
+    return <AirportInfo airport={arrival} />;
+  }
+  // (should never happen)
+  return null;
 }
 
 type AirportInfoProps = {
@@ -89,11 +102,11 @@ const AirportInfo = ({ airport }: AirportInfoProps) => {
   );
 };
 
-type ArrivalProps = {
-  setArrAirport: (arrival: Airport) => void;
+type NoAirportComponentProps = {
+  onSelectAirport: (airport: Airport) => void;
 };
 
-const NoArrivalComponent = ({ setArrAirport }: ArrivalProps) => {
+const NoAirportComponent = ({ onSelectAirport }: NoAirportComponentProps) => {
   const [search, setSearch] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
   const [activeField, setActiveField] = useState(false);
@@ -146,7 +159,7 @@ const NoArrivalComponent = ({ setArrAirport }: ArrivalProps) => {
         style={{ marginTop: 10 }}
         left={
           <TextInput.Icon
-            icon="airplane-landing"
+            icon={"airplane-landing"}
             size={20}
             color={colors.tertiary}
           />
@@ -188,7 +201,7 @@ const NoArrivalComponent = ({ setArrAirport }: ArrivalProps) => {
               )}
               onPress={() => {
                 Keyboard.dismiss();
-                setArrAirport(item);
+                onSelectAirport(item);
                 setActiveField(false);
               }}
             />
