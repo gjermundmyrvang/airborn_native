@@ -26,6 +26,7 @@ import { useFlightStore } from "../utils/flightStore";
 import { haversineDistance } from "../utils/geoUtils";
 import SigmetInfoModal from "../features/sigmets/SigmetInfo";
 import { AirportHighlight } from "../components/AirportHighlight";
+import { InfoBox } from "../components/InfoBox";
 
 const airportsData = airports;
 
@@ -262,47 +263,3 @@ export default function Homescreen() {
     </View>
   );
 }
-
-type InfoBoxProps = {
-  departure: Airport;
-  arrival: Airport;
-  offset?: boolean;
-};
-
-const InfoBox = ({ departure, arrival, offset = false }: InfoBoxProps) => {
-  const { colors } = useTheme();
-  const distance = haversineDistance(departure, arrival);
-  return (
-    <Surface
-      style={{
-        position: "absolute",
-        top: offset ? 220 : 50,
-        left: "5%",
-        right: "5%",
-        alignSelf: "center",
-        padding: 16,
-        borderRadius: 12,
-        elevation: 4,
-        zIndex: 10,
-        backgroundColor: colors.surface,
-        opacity: 0.9,
-      }}
-      elevation={4}
-    >
-      <RowComp>
-        <RowComp>
-          <Icon source="airplane-takeoff" size={20} color={colors.primary} />
-          <Text variant="titleSmall">{departure.name.split(",")[0]}</Text>
-        </RowComp>
-        <RowComp>
-          <Icon source="airplane-landing" size={20} color={colors.primary} />
-          <Text variant="titleSmall">{arrival.name.split(",")[0]}</Text>
-        </RowComp>
-      </RowComp>
-      <Text variant="titleSmall" style={{ marginTop: 10 }}>
-        Distance between airports: {distance.toString("nm")}
-      </Text>
-    </Surface>
-  );
-};
-
