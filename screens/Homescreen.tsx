@@ -1,32 +1,27 @@
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React, { Fragment, useEffect, useState } from "react";
-import { FlatList, View } from "react-native";
+import { View } from "react-native";
 import MapView, { Marker, Polygon } from "react-native-maps";
 import {
   Button,
-  Icon,
   IconButton,
   Snackbar,
-  Surface,
   Text,
   useTheme,
 } from "react-native-paper";
-import { BottomModal } from "../components/BottomModal";
+import { AirportHighlight } from "../components/AirportHighlight";
 import { MyFAB } from "../components/FAB";
+import { InfoBox } from "../components/InfoBox";
 import TripModal from "../components/TripModal";
 import { AIRMET, LATITUDE, LONGITUDE, SIGMET } from "../constants/constants";
 import { Airport, airports } from "../data/airports";
 import { getFavorites, updateFavorites } from "../data/store";
+import SigmetInfoModal from "../features/sigmets/SigmetInfo";
 import { getSigmets } from "../features/sigmets/sigmetservice";
-import { ParsedSigmet } from "../features/sigmets/types";
 import { useLazyQuery } from "../hooks/useLazyQuery";
 import { RootStackParamList } from "../navigation/types";
 import { useFlightStore } from "../utils/flightStore";
-import { haversineDistance } from "../utils/geoUtils";
-import SigmetInfoModal from "../features/sigmets/SigmetInfo";
-import { AirportHighlight } from "../components/AirportHighlight";
-import { InfoBox } from "../components/InfoBox";
 
 const airportsData = airports;
 
