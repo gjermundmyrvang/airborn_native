@@ -4,6 +4,7 @@ import { useTheme } from "react-native-paper";
 import { DistanceInfoBox } from "../../components/DistanceInfo";
 import Sigchart from "../../features/sigchart/Sigchart";
 import { useFlightStore } from "../../utils/flightStore";
+import { GeoSat } from "../../features/geosat/GeoSat";
 
 export default function OverallTab() {
   const departure = useFlightStore((s) => s.depAirport);
@@ -18,6 +19,7 @@ export default function OverallTab() {
         <DistanceInfoBox departure={departure} arrival={arrival} />
       )}
       <Sigchart />
+      <GeoSat />
     </ScrollView>
   );
 }
