@@ -306,20 +306,3 @@ const InfoBox = ({ departure, arrival, offset = false }: InfoBoxProps) => {
   );
 };
 
-type RowCompProps = {
-  children: React.ReactNode;
-};
-
-const RowComp = ({ children }: RowCompProps) => {
-  return (
-    <View
-      style={{
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}
-    >
-      {children}
-    </View>
-  );
-};
