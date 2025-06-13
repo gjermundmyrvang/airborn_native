@@ -1,35 +1,29 @@
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React, { Fragment, useEffect, useState } from "react";
-import { FlatList, Keyboard, View } from "react-native";
+import { View } from "react-native";
 import MapView, { Marker, Polygon } from "react-native-maps";
 import {
   Button,
-  Icon,
   IconButton,
-  List,
   Snackbar,
-  Surface,
   Text,
-  TextInput,
   useTheme,
 } from "react-native-paper";
-import { BottomModal } from "../components/BottomModal";
+import { AirportHighlight } from "../components/AirportHighlight";
 import { MyFAB } from "../components/FAB";
-import { LATITUDE, LONGITUDE } from "../constants/constants";
+import { InfoBox } from "../components/InfoBox";
+import TripModal from "../components/TripModal";
+import { AIRMET, LATITUDE, LONGITUDE, SIGMET } from "../constants/constants";
 import { Airport, airports } from "../data/airports";
 import { getFavorites, updateFavorites } from "../data/store";
+import SigmetInfoModal from "../features/sigmets/SigmetInfo";
 import { getSigmets } from "../features/sigmets/sigmetservice";
-import { ParsedSigmet } from "../features/sigmets/types";
 import { useLazyQuery } from "../hooks/useLazyQuery";
 import { RootStackParamList } from "../navigation/types";
 import { useFlightStore } from "../utils/flightStore";
-import { haversineDistance } from "../utils/geoUtils";
 
 const airportsData = airports;
-
-const SIGMET = "rgba(238, 244, 56, 0.44)";
-const AIRMET = "rgba(0, 183, 255, 0.44)";
 
 export default function Homescreen() {
   const [showModal, setShowModal] = useState(false);
@@ -41,10 +35,6 @@ export default function Homescreen() {
   const depAirport = useFlightStore((s) => s.depAirport);
   const arrAirport = useFlightStore((s) => s.arrAirport);
   const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
-  const [activeField, setActiveField] = useState<
-    "departure" | "arrival" | null
-  >(null);
-  const [search, setSearch] = useState("");
   const [query, expanded, setExpanded] = useLazyQuery(["sigmets"], getSigmets);
   const [snackbar, setSnackbar] = useState(false);
   const [sigmetSnack, setSigmetSnack] = useState(false);
@@ -61,16 +51,6 @@ export default function Homescreen() {
 
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-
-  const filteredAirports = airports.filter((a) => {
-    if (!search) {
-      return favorites.includes(a.icao);
-    }
-    return (
-      a.name.toLowerCase().includes(search.toLowerCase()) ||
-      a.icao.toLowerCase().includes(search.toLowerCase())
-    );
-  });
 
   const handleToggleFavorite = async (icao: string) => {
     let updated: string[];
@@ -105,15 +85,6 @@ export default function Homescreen() {
 
   const handleNewTrip = () => {
     setShowModal(true);
-  };
-
-  const switchDepartureArrival = () => {
-    const dep = departure;
-    const depAir = depAirport;
-    setDeparture(arrival);
-    setDepAirport(arrAirport);
-    setArrival(dep);
-    setArrAirport(depAir);
   };
 
   const handleMarkerPressed = (airport: Airport) => {
@@ -178,167 +149,23 @@ export default function Homescreen() {
             ) : null
           )}
       </MapView>
-      <BottomModal visible={showModal} onClose={() => setShowModal(false)}>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <Text variant="titleLarge">Prepare Trip</Text>
-          <IconButton
-            icon="close"
-            iconColor={colors.onBackground}
-            size={20}
-            onPress={() => setShowModal(false)}
-          />
-        </View>
-        <View style={{ position: "relative" }}>
-          <TextInput
-            label="Departure airport"
-            value={departure ?? depAirport?.name ?? ""}
-            onFocus={() => {
-              setActiveField("departure");
-              setSearch("");
-            }}
-            onChangeText={(text) => {
-              setDeparture(text);
-              setSearch(text);
-            }}
-            mode="outlined"
-            outlineColor={colors.onBackground}
-            activeOutlineColor={colors.primary}
-            textColor={colors.onBackground}
-            style={{ marginTop: 10 }}
-            left={
-              <TextInput.Icon
-                icon="airplane-takeoff"
-                size={20}
-                color={colors.tertiary}
-              />
-            }
-            right={
-              <TextInput.Icon
-                icon="close"
-                size={20}
-                color={colors.onBackground}
-                onPress={() => {
-                  setDeparture(null);
-                  setDepAirport(null);
-                }}
-              />
-            }
-          />
-          <TextInput
-            label="Arrival airport"
-            value={arrival ?? arrAirport?.name ?? ""}
-            disabled={depAirport === null}
-            onFocus={() => {
-              setActiveField("arrival");
-              setSearch("");
-            }}
-            onChangeText={(text) => {
-              setArrival(text);
-              setSearch(text);
-            }}
-            mode="outlined"
-            outlineColor={colors.onBackground}
-            activeOutlineColor={colors.primary}
-            textColor={colors.onBackground}
-            style={{ marginTop: 10 }}
-            left={
-              <TextInput.Icon
-                icon="airplane-landing"
-                size={20}
-                color={colors.tertiary}
-              />
-            }
-            right={
-              <TextInput.Icon
-                icon="close"
-                size={20}
-                color={colors.onBackground}
-                onPress={() => {
-                  setArrival(null);
-                  setArrAirport(null);
-                }}
-              />
-            }
-          />
-          <IconButton
-            icon="arrow-up-down"
-            iconColor={colors.primary}
-            size={30}
-            onPress={switchDepartureArrival}
-            style={{
-              position: "absolute",
-              top: 45,
-              right: 50,
-              zIndex: 2,
-              backgroundColor: colors.background,
-            }}
-          />
-        </View>
-        {activeField && (
-          <FlatList
-            style={{ flex: 1 }}
-            data={filteredAirports}
-            keyboardShouldPersistTaps="handled"
-            keyExtractor={(item: Airport) => item.icao}
-            renderItem={({ item }: { item: Airport }) => (
-              <List.Item
-                title={item.icao}
-                titleStyle={{ color: colors.primary }}
-                description={item.name}
-                descriptionStyle={{ color: colors.onBackground }}
-                left={(props) => (
-                  <List.Icon
-                    {...props}
-                    icon="airplane"
-                    color={colors.tertiary}
-                  />
-                )}
-                right={() => (
-                  <IconButton
-                    icon={
-                      favorites?.includes(item.icao) ? "star" : "star-outline"
-                    }
-                    onPress={() => handleToggleFavorite(item.icao)}
-                    size={20}
-                    iconColor={colors.tertiary}
-                  />
-                )}
-                onPress={() => {
-                  Keyboard.dismiss();
-                  if (activeField === "departure") {
-                    setDeparture(item.name);
-                    setDepAirport(item);
-                  } else {
-                    setArrival(item.name);
-                    setArrAirport(item);
-                    setActiveField(null);
-                  }
-                }}
-              />
-            )}
-            ListEmptyComponent={
-              <Text variant="titleMedium" style={{ marginTop: 8 }}>
-                Begin typing to see airports
-              </Text>
-            }
-          />
-        )}
-        {depAirport && (
-          <Button
-            icon="arrow-right-bold"
-            onPress={handleGoToBrief}
-            style={{ marginVertical: 50 }}
-          >
-            Go To Brief
-          </Button>
-        )}
-      </BottomModal>
+      <TripModal
+        visible={showModal}
+        onClose={() => setShowModal(false)}
+        airports={airports}
+        favorites={favorites}
+        colors={colors}
+        depAirport={depAirport}
+        arrAirport={arrAirport}
+        departure={departure}
+        arrival={arrival}
+        setDeparture={setDeparture}
+        setArrival={setArrival}
+        setDepAirport={setDepAirport}
+        setArrAirport={setArrAirport}
+        handleToggleFavorite={handleToggleFavorite}
+        handleGoToBrief={handleGoToBrief}
+      />
       <MyFAB
         visible={true}
         extended={true}
@@ -431,200 +258,3 @@ export default function Homescreen() {
     </View>
   );
 }
-
-type SigmetInfoProps = {
-  visible: boolean;
-  onClose: (b: boolean) => void;
-  sigmets: ParsedSigmet[];
-};
-
-const SigmetInfoModal = ({ visible, onClose, sigmets }: SigmetInfoProps) => {
-  return (
-    <BottomModal visible={visible} onClose={() => onClose(false)}>
-      <Text variant="titleLarge" style={{ marginBottom: 12 }}>
-        Sigmet/Airmet Messages
-      </Text>
-      <FlatList
-        data={sigmets}
-        keyExtractor={(_, idx) => `msg-${idx}`}
-        renderItem={({ item, index }) => (
-          <View style={{ marginBottom: 16 }}>
-            <Text
-              variant="titleMedium"
-              style={{
-                fontWeight: "bold",
-                color: item.type === "SIGMET" ? SIGMET : AIRMET,
-              }}
-            >
-              {item.type} {index + 1}
-            </Text>
-            <Text variant="bodySmall" selectable>
-              {item.message}
-            </Text>
-          </View>
-        )}
-      />
-    </BottomModal>
-  );
-};
-
-type AirportHighlightProps = {
-  airport: Airport;
-  setDeparture: (airport: Airport) => void;
-  setArrival: (airport: Airport) => void;
-  setAirport: (airport: Airport | null) => void;
-  setSnackbar: () => void;
-};
-
-const AirportHighlight = ({
-  airport,
-  setDeparture,
-  setArrival,
-  setAirport,
-  setSnackbar,
-}: AirportHighlightProps) => {
-  const { colors } = useTheme();
-  const handleSetDeparture = () => {
-    setDeparture(airport);
-    setAirport(null);
-    setSnackbar();
-  };
-  const handleSetArrival = () => {
-    setArrival(airport);
-    setAirport(null);
-    setSnackbar();
-  };
-  return (
-    <Surface
-      style={{
-        position: "absolute",
-        top: 50,
-        left: "5%",
-        right: "5%",
-        alignSelf: "center",
-        padding: 16,
-        borderRadius: 12,
-        elevation: 4,
-        zIndex: 10,
-        backgroundColor: colors.surface,
-        opacity: 0.9,
-      }}
-      elevation={4}
-    >
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 6,
-        }}
-      >
-        <Text variant="titleMedium">{airport.name}</Text>
-        <IconButton
-          icon="close"
-          size={20}
-          onPress={() => setAirport(null)}
-          iconColor={colors.onPrimary}
-          mode="outlined"
-        />
-      </View>
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <Text variant="titleSmall">{airport.icao}</Text>
-        <Text variant="titleSmall">Lat: {airport.latitude}</Text>
-        <Text variant="titleSmall">Lon: {airport.longitude}</Text>
-      </View>
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginTop: 8,
-        }}
-      >
-        <Button
-          icon="airplane-takeoff"
-          onPress={handleSetDeparture}
-          mode="elevated"
-          buttonColor={colors.secondary}
-        >
-          Departure
-        </Button>
-        <Button
-          icon="airplane-landing"
-          onPress={handleSetArrival}
-          mode="elevated"
-          buttonColor={colors.secondary}
-        >
-          Arrival
-        </Button>
-      </View>
-    </Surface>
-  );
-};
-
-type InfoBoxProps = {
-  departure: Airport;
-  arrival: Airport;
-  offset?: boolean;
-};
-
-const InfoBox = ({ departure, arrival, offset = false }: InfoBoxProps) => {
-  const { colors } = useTheme();
-  const distance = haversineDistance(departure, arrival);
-  return (
-    <Surface
-      style={{
-        position: "absolute",
-        top: offset ? 220 : 50,
-        left: "5%",
-        right: "5%",
-        alignSelf: "center",
-        padding: 16,
-        borderRadius: 12,
-        elevation: 4,
-        zIndex: 10,
-        backgroundColor: colors.surface,
-        opacity: 0.9,
-      }}
-      elevation={4}
-    >
-      <RowComp>
-        <RowComp>
-          <Icon source="airplane-takeoff" size={20} color={colors.primary} />
-          <Text variant="titleSmall">{departure.name.split(",")[0]}</Text>
-        </RowComp>
-        <RowComp>
-          <Icon source="airplane-landing" size={20} color={colors.primary} />
-          <Text variant="titleSmall">{arrival.name.split(",")[0]}</Text>
-        </RowComp>
-      </RowComp>
-      <Text variant="titleSmall" style={{ marginTop: 10 }}>
-        Distance between airports: {distance.toString("nm")}
-      </Text>
-    </Surface>
-  );
-};
-
-type RowCompProps = {
-  children: React.ReactNode;
-};
-
-const RowComp = ({ children }: RowCompProps) => {
-  return (
-    <View
-      style={{
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}
-    >
-      {children}
-    </View>
-  );
-};
