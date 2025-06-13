@@ -18,3 +18,27 @@ export function haversineDistance(a: LatLon, b: LatLon): Distance {
   const meters = 2 * R * Math.asin(Math.sqrt(h));
   return new Distance(meters);
 }
+
+export function degreesToCompass(deg?: number): string {
+  if (deg === undefined) return "";
+  const dirs = [
+    "N",
+    "NNE",
+    "NE",
+    "ENE",
+    "E",
+    "ESE",
+    "SE",
+    "SSE",
+    "S",
+    "SSW",
+    "SW",
+    "WSW",
+    "W",
+    "WNW",
+    "NW",
+    "NNW",
+  ];
+  const ix = Math.round((deg % 360) / 22.5) % 16;
+  return dirs[ix];
+}
