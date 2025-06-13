@@ -66,7 +66,7 @@ const MetarComponent = ({ metar }: MetarComponentProps) => {
         borderRadius: 8,
         borderWidth: 1,
         borderColor: colors.secondary,
-        marginVertical: 4,
+        margin: 4,
       }}
     >
       <Text variant="titleSmall" style={{ marginBottom: 4 }}>
@@ -79,8 +79,9 @@ const MetarComponent = ({ metar }: MetarComponentProps) => {
       <Text variant="bodyMedium">Temp/Dew: {data.temp}</Text>
       <Text variant="bodyMedium">Pressure: {data.pressure}</Text>
       <Text
-        variant="labelSmall"
+        variant="titleMedium"
         style={{ marginTop: 8, color: colors.tertiary }}
+        selectable={true}
       >
         {data.raw}
       </Text>
