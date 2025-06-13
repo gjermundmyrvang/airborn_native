@@ -15,7 +15,7 @@ import {
 import { BottomModal } from "../components/BottomModal";
 import { MyFAB } from "../components/FAB";
 import TripModal from "../components/TripModal";
-import { LATITUDE, LONGITUDE } from "../constants/constants";
+import { AIRMET, LATITUDE, LONGITUDE, SIGMET } from "../constants/constants";
 import { Airport, airports } from "../data/airports";
 import { getFavorites, updateFavorites } from "../data/store";
 import { getSigmets } from "../features/sigmets/sigmetservice";
@@ -24,11 +24,9 @@ import { useLazyQuery } from "../hooks/useLazyQuery";
 import { RootStackParamList } from "../navigation/types";
 import { useFlightStore } from "../utils/flightStore";
 import { haversineDistance } from "../utils/geoUtils";
+import SigmetInfoModal from "../features/sigmets/SigmetInfo";
 
 const airportsData = airports;
-
-const SIGMET = "rgba(238, 244, 56, 0.44)";
-const AIRMET = "rgba(0, 183, 255, 0.44)";
 
 export default function Homescreen() {
   const [showModal, setShowModal] = useState(false);
@@ -263,42 +261,6 @@ export default function Homescreen() {
     </View>
   );
 }
-
-type SigmetInfoProps = {
-  visible: boolean;
-  onClose: (b: boolean) => void;
-  sigmets: ParsedSigmet[];
-};
-
-const SigmetInfoModal = ({ visible, onClose, sigmets }: SigmetInfoProps) => {
-  return (
-    <BottomModal visible={visible} onClose={() => onClose(false)}>
-      <Text variant="titleLarge" style={{ marginBottom: 12 }}>
-        Sigmet/Airmet Messages
-      </Text>
-      <FlatList
-        data={sigmets}
-        keyExtractor={(_, idx) => `msg-${idx}`}
-        renderItem={({ item, index }) => (
-          <View style={{ marginBottom: 16 }}>
-            <Text
-              variant="titleMedium"
-              style={{
-                fontWeight: "bold",
-                color: item.type === "SIGMET" ? SIGMET : AIRMET,
-              }}
-            >
-              {item.type} {index + 1}
-            </Text>
-            <Text variant="bodySmall" selectable>
-              {item.message}
-            </Text>
-          </View>
-        )}
-      />
-    </BottomModal>
-  );
-};
 
 type AirportHighlightProps = {
   airport: Airport;
