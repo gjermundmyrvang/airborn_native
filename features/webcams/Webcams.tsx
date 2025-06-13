@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { Dimensions, Image, View } from "react-native";
-import { List, Text, useTheme } from "react-native-paper";
+import React from "react";
+import { ScrollView } from "react-native";
+import { Card, useTheme } from "react-native-paper";
 import LazyCollapsible from "../../components/LazyCollapsible";
 import { useLazyQuery } from "../../hooks/useLazyQuery";
 import { LatLon } from "../../types/CommonTypes";
@@ -37,75 +37,43 @@ type WebcamComponentProps = {
 };
 
 const WebcamComponent = ({ webcams }: WebcamComponentProps) => {
-  const [selectedCam, setSelectedCam] = useState(0);
-  const webcam = webcams[selectedCam];
-
-  const width = Dimensions.get("screen").width - 50;
-  const height = Dimensions.get("screen").height * 0.3;
-
-  const [mainTitle, subTitle] = webcam.title.includes("-")
-    ? webcam.title.split(/-(.+)/).map((s) => s.trim())
-    : [webcam.title, ""];
-
   return (
-    <View
-      style={{ padding: 8, justifyContent: "center", alignItems: "center" }}
-    >
-      <Text variant="titleMedium">{mainTitle}</Text>
-      {subTitle ? (
-        <Text variant="bodySmall" style={{ opacity: 0.7 }}>
-          {subTitle}
-        </Text>
-      ) : null}
-      <Image
-        source={{ uri: webcam.images.current.preview }}
-        style={{ width, height }}
-        resizeMode="contain"
-      />
-      <Text variant="titleSmall">{toDateTime(webcam.lastUpdatedOn)}</Text>
-      <View
-        style={{
-          width: "100%",
-          alignSelf: "flex-start",
-        }}
-      >
-        {webcams.map((d, i) => (
-          <WebcamItem
-            key={d.title + i}
-            webcam={d}
-            selected={i === selectedCam}
-            setSelected={() => setSelectedCam(i)}
-          />
-        ))}
-      </View>
-    </View>
+    <ScrollView horizontal={true} style={{ paddingLeft: 10 }}>
+      {webcams.map((d, i) => (
+        <WebcamCard key={d.title + i} webcam={d} />
+      ))}
+    </ScrollView>
   );
 };
 
 type WebcamItemProps = {
   webcam: WebcamType;
-  selected: boolean;
-  setSelected: () => void;
 };
 
-const WebcamItem = ({ webcam, selected, setSelected }: WebcamItemProps) => {
+const WebcamCard = ({ webcam }: WebcamItemProps) => {
   const { colors } = useTheme();
   const [mainTitle, subTitle] = webcam.title.includes("-")
     ? webcam.title.split(/-(.+)/).map((s) => s.trim())
-    : [webcam.title, ""];
+    : [webcam.title, "morn"];
   return (
-    <List.Item
-      title={subTitle || mainTitle}
-      description={toDateTime(webcam.lastUpdatedOn)}
-      descriptionStyle={{ color: colors.secondary }}
-      onPress={setSelected}
-      left={(props) => (
-        <List.Icon
-          {...props}
-          icon="camera"
-          color={selected ? colors.primary : colors.secondary}
-        />
-      )}
-    />
+    <Card
+      elevation={2}
+      style={{
+        backgroundColor: colors.surface,
+        width: 300,
+        marginRight: 6,
+      }}
+    >
+      <Card.Cover
+        source={{ uri: webcam.images.current.preview }}
+        style={{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}
+      />
+      <Card.Title
+        title={mainTitle}
+        subtitle={toDateTime(webcam.lastUpdatedOn)}
+        titleStyle={{ color: colors.primary }}
+        subtitleStyle={{ color: colors.secondary }}
+      />
+    </Card>
   );
 };
