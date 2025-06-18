@@ -5,6 +5,7 @@ import { DistanceInfoBox } from "../../components/DistanceInfo";
 import Sigchart from "../../features/sigchart/Sigchart";
 import { useFlightStore } from "../../utils/flightStore";
 import { GeoSat } from "../../features/geosat/GeoSat";
+import { RadarImages } from "../../features/radar/Radar";
 
 export default function OverallTab() {
   const departure = useFlightStore((s) => s.depAirport);
@@ -20,6 +21,7 @@ export default function OverallTab() {
       )}
       <Sigchart />
       <GeoSat />
+      <RadarImages />
     </ScrollView>
   );
 }
