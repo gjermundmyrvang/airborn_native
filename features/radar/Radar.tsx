@@ -6,6 +6,7 @@ import { RadarResponse } from "./types";
 import {
   ActivityIndicator,
   Button,
+  Divider,
   Menu,
   Text,
   useTheme,
@@ -102,7 +103,9 @@ export const RadarSelector = ({ radarImages, loading }: RadarSelectorProps) => {
           source={{ uri: filteredImages[0].uri }}
           resizeMode="contain"
         />
-        <Text>{toDateTime(filteredImages[0].params.time)} (LT)</Text>
+        <Text variant="titleMedium">
+          Updated: {toDateTime(filteredImages[0].params.time)} (LT)
+        </Text>
       </View>
     );
   }
@@ -127,12 +130,11 @@ export const RadarSelector = ({ radarImages, loading }: RadarSelectorProps) => {
               style={{
                 marginRight: 8,
                 paddingVertical: 8,
-                paddingHorizontal: 4,
+                paddingHorizontal: 6,
                 backgroundColor:
-                  area === selectedArea
-                    ? colors.secondaryContainer
-                    : colors.surface,
+                  area === selectedArea ? colors.tertiary : colors.surface,
                 borderRadius: 16,
+                fontWeight: area === selectedArea ? "800" : "400",
               }}
             >
               {area}
@@ -153,12 +155,11 @@ export const RadarSelector = ({ radarImages, loading }: RadarSelectorProps) => {
               style={{
                 marginRight: 8,
                 paddingVertical: 8,
-                paddingHorizontal: 4,
+                paddingHorizontal: 6,
                 backgroundColor:
-                  type === selectedType
-                    ? colors.secondaryContainer
-                    : colors.surface,
+                  type === selectedType ? colors.primary : colors.surface,
                 borderRadius: 16,
+                fontWeight: type === selectedType ? "800" : "400",
               }}
             >
               {type}
