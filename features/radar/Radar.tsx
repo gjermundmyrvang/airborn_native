@@ -123,9 +123,9 @@ export const RadarSelector = ({ radarImages, loading }: RadarSelectorProps) => {
           showsHorizontalScrollIndicator={false}
           style={{ marginVertical: 8, paddingLeft: 10 }}
         >
-          {areas.map((area) => (
+          {areas.map((area, idx) => (
             <Text
-              key={area}
+              key={`${area}-${idx}`}
               onPress={() => setSelectedArea(area)}
               style={{
                 marginRight: 8,
@@ -148,9 +148,9 @@ export const RadarSelector = ({ radarImages, loading }: RadarSelectorProps) => {
           showsHorizontalScrollIndicator={false}
           style={{ marginVertical: 8, paddingLeft: 10 }}
         >
-          {types.map((type) => (
+          {types.map((type, idx) => (
             <Text
-              key={type}
+              key={`${type}-${idx}`}
               onPress={() => setSelectedType(type)}
               style={{
                 marginRight: 8,
