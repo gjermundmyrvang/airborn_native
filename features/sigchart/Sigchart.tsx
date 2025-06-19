@@ -114,7 +114,7 @@ const SigchartComponent = ({ sigcharts }: SigchartProps) => {
         <ScrollView style={{ maxHeight: 300 }}>
           {charts.map((d, i) => (
             <Menu.Item
-              key={d.params.time}
+              key={`id:${i}-${d.params.time}`}
               onPress={() => {
                 setSelected(i);
                 closeMenu();
