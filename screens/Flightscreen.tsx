@@ -21,7 +21,7 @@ export default function Flightscreen({ navigation, route }: FlightscreenProps) {
   const { colors } = useTheme();
 
   const _goBack = () => navigation.goBack();
-  const _handleRefresh = () => console.log("Refreshing");
+
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <Appbar.Header
@@ -30,11 +30,6 @@ export default function Flightscreen({ navigation, route }: FlightscreenProps) {
       >
         <Appbar.BackAction onPress={_goBack} color={colors.primary} />
         <Appbar.Content title="Flightbrief Screen" color={colors.primary} />
-        <Appbar.Action
-          icon="refresh"
-          onPress={_handleRefresh}
-          color={colors.primary}
-        />
       </Appbar.Header>
       <View style={{ flex: 1 }}>
         <BottomBar />
