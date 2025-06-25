@@ -1,5 +1,5 @@
 import axios from "../../api/axiosInstance";
-import { NLAResponse } from "./Types";
+import { NLAResponse } from "./types";
 
 export const getNLARoutes = async (): Promise<NLAResponse> => {
   const response = await axios.get("/nlaroutes/1.0/available.json");

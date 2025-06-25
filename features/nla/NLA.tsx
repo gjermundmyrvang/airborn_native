@@ -1,11 +1,11 @@
 import React, { useMemo, useState } from "react";
 import { Dimensions, Image, View } from "react-native";
+import { Button, Menu, useTheme } from "react-native-paper";
 import LazyCollapsible from "../../components/LazyCollapsible";
 import { useLazyQuery } from "../../hooks/useLazyQuery";
-import { getNLARoutes } from "./nlaservice";
-import { NLAResponse } from "./Types";
-import { Button, Menu, Text, useTheme } from "react-native-paper";
 import { toTime } from "../../utils/dateTimeConverter";
+import { getNLARoutes } from "./nlaservice";
+import { NLAResponse } from "./types";
 
 export default function NlaRoutes() {
   const [query, expanded, setExpanded] = useLazyQuery(["nlaroutes"], () =>
