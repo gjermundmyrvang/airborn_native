@@ -18,7 +18,7 @@ export const SelectedWeather = ({
   today,
 }: SelectedWeatherProps) => {
   return (
-    <View style={{ paddingHorizontal: 6 }}>
+    <View style={{ paddingHorizontal: 6, gap: 12 }}>
       <View style={{ flexDirection: "row", gap: 10 }}>
         <View>
           <Text variant="titleLarge">Today {toTime(time)}</Text>

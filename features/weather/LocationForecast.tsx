@@ -61,7 +61,7 @@ export const WeatherComponent = ({ weatherdata }: WeatherProps) => {
   const displayHour = hours[selectedHour];
 
   return (
-    <View style={{ padding: 8 }}>
+    <View style={{ padding: 8, gap: 12 }}>
       <SelectedWeather
         time={displayHour.time}
         symbol={displayHour.data.next_1_hours?.summary.symbol_code}

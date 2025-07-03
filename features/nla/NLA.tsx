@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Dimensions, Image, View } from "react-native";
+import { Dimensions, Image, ScrollView, View } from "react-native";
 import { Button, Menu, useTheme } from "react-native-paper";
 import LazyCollapsible from "../../components/LazyCollapsible";
 import { useLazyQuery } from "../../hooks/useLazyQuery";
@@ -84,25 +84,29 @@ const NLAComponent = ({ routes }: Props) => {
         contentStyle={{
           backgroundColor: colors.surface,
           borderRadius: 8,
+          padding: 8,
+          maxHeight: 400,
         }}
       >
-        {nameOptions.map((name) => (
-          <Menu.Item
-            key={name}
-            onPress={() => {
-              setSelectedName(name);
-              setSelectedTime(null);
-              setSelectedType(null);
-              setNameMenuVisible(false);
-            }}
-            title={name}
-            style={{
-              backgroundColor: colors.secondary,
-              borderRadius: 8,
-              margin: 5,
-            }}
-          />
-        ))}
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {nameOptions.map((name) => (
+            <Menu.Item
+              key={name}
+              onPress={() => {
+                setSelectedName(name);
+                setSelectedTime(null);
+                setSelectedType(null);
+                setNameMenuVisible(false);
+              }}
+              title={name}
+              style={{
+                backgroundColor: colors.secondary,
+                borderRadius: 8,
+                margin: 5,
+              }}
+            />
+          ))}
+        </ScrollView>
       </Menu>
 
       {/* Time Selector */}
@@ -123,22 +127,24 @@ const NLAComponent = ({ routes }: Props) => {
           borderRadius: 8,
         }}
       >
-        {timeOptions.map((time) => (
-          <Menu.Item
-            key={time}
-            onPress={() => {
-              setSelectedTime(time);
-              setSelectedType(null);
-              setTimeMenuVisible(false);
-            }}
-            title={toTime(time) + " LT"}
-            style={{
-              backgroundColor: colors.secondary,
-              borderRadius: 8,
-              margin: 5,
-            }}
-          />
-        ))}
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {timeOptions.map((time) => (
+            <Menu.Item
+              key={time}
+              onPress={() => {
+                setSelectedTime(time);
+                setSelectedType(null);
+                setTimeMenuVisible(false);
+              }}
+              title={toTime(time) + " LT"}
+              style={{
+                backgroundColor: colors.secondary,
+                borderRadius: 8,
+                margin: 5,
+              }}
+            />
+          ))}
+        </ScrollView>
       </Menu>
 
       {/* Type Selector */}
@@ -159,21 +165,23 @@ const NLAComponent = ({ routes }: Props) => {
           borderRadius: 8,
         }}
       >
-        {typeOptions.map((type) => (
-          <Menu.Item
-            key={type}
-            onPress={() => {
-              setSelectedType(type);
-              setTypeMenuVisible(false);
-            }}
-            title={type}
-            style={{
-              backgroundColor: colors.secondary,
-              borderRadius: 8,
-              margin: 5,
-            }}
-          />
-        ))}
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {typeOptions.map((type) => (
+            <Menu.Item
+              key={type}
+              onPress={() => {
+                setSelectedType(type);
+                setTypeMenuVisible(false);
+              }}
+              title={type}
+              style={{
+                backgroundColor: colors.secondary,
+                borderRadius: 8,
+                margin: 5,
+              }}
+            />
+          ))}
+        </ScrollView>
       </Menu>
 
       {uri && (
