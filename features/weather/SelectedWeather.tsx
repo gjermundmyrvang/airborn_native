@@ -1,10 +1,6 @@
 import { Image, View } from "react-native";
 import { Text } from "react-native-paper";
-import {
-  toDateTime,
-  toDayMonthYear,
-  toTime,
-} from "../../utils/dateTimeConverter";
+import { toDayMonthYear, toTime } from "../../utils/dateTimeConverter";
 import { weatherIcons } from "../../utils/iconMapper";
 import { WeatherInstantDetails } from "./types";
 import { WeatherDetail } from "./weathercomponents/WeatherDetail";
