@@ -23,27 +23,32 @@ function parseLatLon(coordStr: string): LatLon | null {
 }
 
 export function parseSigmets(raw: string): ParsedSigmet[] {
-  // Split into message blocks (each starts with ZCZC)
+  // Split based on WMO bulletin headers (like WSNO31 ENMI or WAEN31 ENMI)
   const blocks = raw
-    .split(/ZCZC/g)
-    .map(b => b.trim())
+    .split(/\n(?=W[A-Z]{3}\d{2} [A-Z]{4})/)
+    .map((b) => b.trim())
     .filter(Boolean);
 
   return blocks.map((block) => {
-    // Find type
+    // Determine type
     const typeMatch = /\b(SIGMET|AIRMET)\b/.exec(block);
     const type = typeMatch ? (typeMatch[1] as "SIGMET" | "AIRMET") : "SIGMET";
 
-    const coordsMatch = /WI\s+([NESW\d\s-]+?)(?:\s+\w+\/FL|\s+\d+FT\/FL|\s+SFC\/FL|\s+STNR|=)/i.exec(block);
+    // Extract coordinates
+    const coordsMatch =
+      /WI\s+([NESW\d\s-]+?)(?:\s+\w+\/FL|\s+\d+FT\/FL|\s+SFC\/FL|\s+STNR|=)/i.exec(
+        block
+      );
+
     let coords: LatLon[] = [];
     if (coordsMatch?.[1]) {
       coords = coordsMatch[1]
         .split("-")
-        .map(s => s.trim())
+        .map((s) => s.trim())
         .map(parseLatLon)
         .filter((c): c is LatLon => !!c);
     }
-    
+
     return {
       type,
       coords,
