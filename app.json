@@ -2,7 +2,7 @@
   "expo": {
     "name": "Airborn WX",
     "slug": "airborn",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/logoicon.png",
     "userInterfaceStyle": "light",
