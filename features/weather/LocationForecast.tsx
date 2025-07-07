@@ -66,6 +66,7 @@ export const WeatherComponent = ({ weatherdata }: WeatherProps) => {
         time={displayHour.time}
         symbol={displayHour.data.next_1_hours?.summary.symbol_code}
         today={displayHour.data.instant.details}
+        selectedDate={selectedDate}
       />
       {/* Hour selector */}
       <WeatherHours
