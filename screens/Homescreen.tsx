@@ -37,10 +37,7 @@ export default function Homescreen() {
   const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
   const [query, expanded, setExpanded] = useLazyQuery(["sigmets"], getSigmets);
   const [snackbar, setSnackbar] = useState(false);
-  const [sigmetSnack, setSigmetSnack] = useState(false);
-  const [showSigInfo, setShowSigInfo] = useState(
-    query.isSuccess && query.data.length > 0
-  );
+  const [showSigInfo, setShowSigInfo] = useState(false);
   const [showSigmetModal, setShowSigmetModal] = useState(false);
 
   const onToggleSnackBar = () => setSnackbar(!snackbar);
@@ -72,10 +69,11 @@ export default function Homescreen() {
   }, []);
 
   useEffect(() => {
-    if (query.isSuccess && query.data.length === 0) {
-      setSigmetSnack(true);
+    setExpanded(true);
+    if (query.data && query.data.length > 0) {
+      setShowSigInfo(true);
     }
-  }, [query.isSuccess, query.data]);
+  }, [query.data]);
 
   const handleGoToBrief = () => {
     if (!depAirport) return;
@@ -193,17 +191,6 @@ export default function Homescreen() {
             : "Airport selected"}
         </Text>
       </Snackbar>
-      <Snackbar
-        visible={sigmetSnack}
-        onDismiss={() => setSigmetSnack(false)}
-        duration={3000}
-        style={{
-          backgroundColor: colors.background,
-          borderRadius: 16,
-        }}
-      >
-        No sigmet or airmets
-      </Snackbar>
       {selectedAirport ? (
         <AirportHighlight
           airport={selectedAirport}
@@ -248,7 +235,7 @@ export default function Homescreen() {
           />
         </View>
       )}
-      {query.isSuccess && query.data.length > 0 && (
+      {query.data && (
         <SigmetInfoModal
           visible={showSigmetModal}
           onClose={setShowSigmetModal}
